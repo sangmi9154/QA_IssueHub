@@ -160,7 +160,7 @@ label{font-size:12px;font-weight:800;display:block;margin-bottom:6px}
       <div><label>Version</label><input id="i_version"></div>
       <div><label>Submitted Date</label><input id="i_submitted_date" readonly placeholder="등록 시 자동 입력"></div>
       <div><label>QA Closed Date</label><input id="i_closed_date" readonly placeholder="Close 변경 시 자동 입력"></div>
-      <div class="full"><label>Attachment</label><input type="file" id="i_files" multiple><div class="file-input-note">여러 파일을 선택할 수 있습니다. 파일은 현재 브라우저 PC에 저장됩니다.</div></div>
+      <div class="full"><label>Attachment</label><input type="file" id="i_files" multiple><button type="button" class="btn secondary" style="margin-top:6px" onclick="$('i_files').value=''">선택 취소</button><div class="file-input-note">여러 파일을 선택할 수 있습니다. 파일은 현재 브라우저 PC에 저장됩니다.</div></div>
       <div class="full"><label>Operation Step</label><textarea id="i_steps"></textarea></div>
       <div><label>Expected Result</label><textarea id="i_expected"></textarea></div>
       <div><label>Test Result</label><textarea id="i_result"></textarea></div>
@@ -215,7 +215,7 @@ label{font-size:12px;font-weight:800;display:block;margin-bottom:6px}
       <div><label>Submitted Date</label><input id="e_submitted_date" readonly></div>
       <div><label>QA Closed Date</label><input id="e_closed_date" readonly></div>
       <div class="full"><label>기존 Attachment</label><div id="e_existing_files" class="attach-list"></div></div>
-      <div class="full"><label>Attachment 추가</label><input type="file" id="e_files" multiple><div class="file-input-note">추가 파일을 선택할 수 있습니다.</div></div>
+      <div class="full"><label>Attachment 추가</label><input type="file" id="e_files" multiple><button type="button" class="btn secondary" style="margin-top:6px" onclick="$('e_files').value=''">선택 취소</button><div class="file-input-note">추가 파일을 선택할 수 있습니다.</div></div>
       <div class="full"><label>Operation Step</label><textarea id="e_steps"></textarea></div>
       <div><label>Expected Result</label><textarea id="e_expected"></textarea></div>
       <div><label>Test Result</label><textarea id="e_result"></textarea></div>
@@ -325,11 +325,20 @@ function isConfigured(){ return !!sb; }
 
 /* ---------- 첨부파일: Supabase Storage ---------- */
 
+function sanitizeFileName(name){
+  const dot=name.lastIndexOf('.');
+  const base=dot>0?name.slice(0,dot):name;
+  const ext=dot>0?name.slice(dot):'';
+  const safeBase=base.replace(/[^a-zA-Z0-9._-]+/g,'_').replace(/^_+|_+$/g,'')||'file';
+  const safeExt=ext.replace(/[^a-zA-Z0-9.]+/g,'');
+  return safeBase+safeExt;
+}
+
 async function saveAttachments(issueNo,fileList){
   if(!fileList || !fileList.length) return;
   for(const file of [...fileList]){
-    const path=`${issueNo}/${file.name}`;
-    const {error}=await sb.storage.from(ATTACH_BUCKET).upload(path,file,{upsert:true});
+    const path=`${issueNo}/${Date.now()}_${sanitizeFileName(file.name)}`;
+    const {error}=await sb.storage.from(ATTACH_BUCKET).upload(path,file,{upsert:true,metadata:{originalName:file.name}});
     if(error) alert('첨부파일 업로드 실패('+file.name+'): '+error.message);
   }
 }
@@ -340,7 +349,7 @@ async function getAttachments(issueNo){
   if(error || !data) return [];
   return data.filter(f=>f.id).map(f=>({
     id:`${issueNo}/${f.name}`,
-    name:f.name,
+    name:f.metadata?.originalName || f.name,
     size:f.metadata?.size||0,
     type:f.metadata?.mimetype||''
   }));
@@ -362,13 +371,12 @@ function humanSize(n){
   return (n/1024/1024).toFixed(1)+' MB';
 }
 
-async function downloadAttachmentById(path){
+async function downloadAttachmentById(path,name){
   const {data,error}=await sb.storage.from(ATTACH_BUCKET).download(path);
   if(error||!data){ alert('다운로드 실패: '+(error?.message||'')); return; }
-  const name=path.split('/').slice(1).join('/');
   const url=URL.createObjectURL(data);
   const a=document.createElement('a');
-  a.href=url;a.download=name;a.click();
+  a.href=url;a.download=name||path.split('/').slice(1).join('/');a.click();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
@@ -377,7 +385,7 @@ async function renderDetailAttachments(issueNo){
   $('d_files').innerHTML=rows.length?rows.map(r=>`
     <div class="attach-item">
       <span class="attach-name">${esc(r.name)} <span style="color:#94a3b8">(${humanSize(r.size)})</span></span>
-      <button class="btn secondary" onclick="downloadAttachmentById('${r.id.replace(/'/g,"\\'")}')">다운로드</button>
+      <button class="btn secondary" onclick="downloadAttachmentById('${r.id.replace(/'/g,"\\'")}','${r.name.replace(/'/g,"\\'")}')">다운로드</button>
     </div>`).join(''):'<div style="font-size:12px;color:#64748b">첨부파일이 없습니다.</div>';
 }
 
