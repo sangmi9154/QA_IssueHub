@@ -1700,7 +1700,7 @@ function openDetail(no){
     <div class="kv"><b>Reporter</b><span>${esc(i.reporter)}</span></div>
     <div class="kv"><b>Model</b><span>${esc(i.model)}</span></div>
     <div class="kv"><b>Version</b><span>${esc(i.version)}</span></div>
-    <div class="kv"><b>Submitted Date</b><span>${esc(i.submitted_date||i.created||'-')}</span></div>
+    <div class="kv"><b>Submitted Date</b><span>${esc(issueSubmittedDate(i)||'-')}</span></div>
     <div class="kv"><b>QA Closed Date</b><span>${esc(i.closed_date||'-')}</span></div>
     <div class="kv"><b>QA Closed Version</b><span>${esc(i.closed_version||'-')}</span></div>
     <div class="kv"><b>Rate</b><span>${esc(i.rate)}</span></div>`;
@@ -1724,7 +1724,7 @@ function openEditPage(){
   $('e_reporter').value=i.reporter;
   $('e_model').value=i.model;
   $('e_version').value=i.version;
-  $('e_submitted_date').value=i.submitted_date||i.created||'';
+  $('e_submitted_date').value=issueSubmittedDate(i);
   $('e_closed_date').value=i.closed_date||'';
   $('e_closed_version').value=i.closed_version||'';
   syncClosedVersionField('e');
@@ -1764,7 +1764,7 @@ async function saveEdit(){
     result:$('e_result').value.trim(),
     rate:$('e_rate').value.trim()||'-',
     comments:$('e_comments').value.trim(),
-    submitted_date:prev.submitted_date||prev.created||'',
+    submitted_date:issueSubmittedDate(prev),
     closed_date:closed_date,
     closed_version:closed_version,
     updated:now()
@@ -1887,12 +1887,77 @@ function latestIssueExcelDate(rows){
   let latest='';
   let latestTime=-1;
   (rows||[]).forEach(i=>{
-    const d=parseSimpleDate(i.submitted_date||i.created||'');
+    const d=issueSubmittedDate(i);
     if(!d) return;
     const t=new Date(d+'T00:00:00').getTime();
     if(!Number.isNaN(t) && t>latestTime){latestTime=t;latest=d;}
   });
   return excelSerialDate(latest);
+}
+
+function replaceCompanyWorksheetCellKeepStyle(xml,ref,value,type='number'){
+  const re=new RegExp(`<c\\s+r=\"${ref}\"[^>]*>`);
+  const m=xml.match(re);
+  let style='0';
+  if(m){
+    const sm=m[0].match(/\ss="([^"]+)"/);
+    if(sm) style=sm[1];
+  }
+  return replaceCompanyWorksheetCell(xml,ref,companyCell(ref,style,value,type));
+}
+
+function summaryCount(rows,severity,status,category=''){
+  return (rows||[]).filter(i=>
+    (!severity || String(i.severity||'')===severity) &&
+    (!status || String(i.status||'')===status) &&
+    (!category || String(i.project||'')===category)
+  ).length;
+}
+
+function rewriteSummaryIssueStatus(summaryXml,rows){
+  const severities=['Critical','Major','Average','Minor'];
+  const statuses=['Open','Reopen','Resolved','Analyzing','Monitoring','Close'];
+
+  // Total Issue Status: 현재 백업 대상 데이터로 값을 직접 기입합니다.
+  // 템플릿의 UBio-Touch Air 수식 캐시값이 남지 않도록 수식이 아닌 실제 숫자로 교체합니다.
+  severities.forEach((sev,si)=>{
+    const r=19+si;
+    let rowTotal=0;
+    statuses.forEach((st,sti)=>{
+      const count=summaryCount(rows,sev,st);
+      rowTotal+=count;
+      summaryXml=replaceCompanyWorksheetCellKeepStyle(summaryXml,String.fromCharCode(66+sti)+r,count,'number');
+    });
+    summaryXml=replaceCompanyWorksheetCellKeepStyle(summaryXml,'H'+r,rowTotal,'number');
+  });
+  statuses.forEach((st,sti)=>{
+    const count=summaryCount(rows,'',st);
+    summaryXml=replaceCompanyWorksheetCellKeepStyle(summaryXml,String.fromCharCode(66+sti)+'23',count,'number');
+  });
+  summaryXml=replaceCompanyWorksheetCellKeepStyle(summaryXml,'H23',(rows||[]).length,'number');
+
+  // Issue Status for each Catagories 영역도 Air 데이터가 남지 않도록 전부 현재 데이터로 다시 계산합니다.
+  const categoryStarts={FW:28,HW:36,ME:44,Field:52,Manual:60,SW:68,Etc:76};
+  Object.entries(categoryStarts).forEach(([category,startRow])=>{
+    severities.forEach((sev,si)=>{
+      const r=startRow+si;
+      let rowTotal=0;
+      statuses.forEach((st,sti)=>{
+        const count=summaryCount(rows,sev,st,category);
+        rowTotal+=count;
+        summaryXml=replaceCompanyWorksheetCellKeepStyle(summaryXml,String.fromCharCode(66+sti)+r,count,'number');
+      });
+      summaryXml=replaceCompanyWorksheetCellKeepStyle(summaryXml,'H'+r,rowTotal,'number');
+    });
+    const totalRow=startRow+4;
+    statuses.forEach((st,sti)=>{
+      const count=summaryCount(rows,'',st,category);
+      summaryXml=replaceCompanyWorksheetCellKeepStyle(summaryXml,String.fromCharCode(66+sti)+totalRow,count,'number');
+    });
+    summaryXml=replaceCompanyWorksheetCellKeepStyle(summaryXml,'H'+totalRow,summaryCount(rows,'','',category),'number');
+  });
+
+  return summaryXml;
 }
 
 function totalIssueCellStyles(status){
@@ -1990,6 +2055,13 @@ function parseSimpleDate(v){
   return m ? m[1]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[3]).padStart(2,'0') : text;
 }
 
+// Submitted Date의 기준은 DB의 최초 등록 시각(created)입니다.
+// 구버전에서 submitted_date가 나중 날짜로 채워진 이슈도 최초 등록일로 출력되도록 created를 우선합니다.
+function issueSubmittedDate(i){
+  if(!i) return '';
+  return parseSimpleDate(i.created||i.submitted_date||'');
+}
+
 function closedPeriodDays(start,end){
   const a=parseSimpleDate(start), b=parseSimpleDate(end);
   if(!a||!b) return '';
@@ -2082,7 +2154,7 @@ async function exportExcel(){
       const styles=totalIssueCellStyles(i.status||'');
       // 회사 양식 컬럼 매핑
       // Submitted Date = 이슈 최초 등록일 / QA Closed Date = Close 변경일 / Released Version = QA Closed Version
-      const submitted=excelSerialDate(i.submitted_date||i.created||'');
+      const submitted=excelSerialDate(issueSubmittedDate(i));
       const closed=excelSerialDate(i.closed_date||'');
       const values=[
         companyId, i.project||'', i.severity||'', i.status||'', i.title||'',
@@ -2100,7 +2172,7 @@ async function exportExcel(){
         companyCell('P'+r,styles.P,values[15]), companyCell('Q'+r,styles.Q,values[16]), companyCell('R'+r,styles.R,'','blank')
       ].join('');
       dataRows.push(`<row r="${r}" spans="1:18" s="122" customFormat="1" ht="${estimateCompanyRowHeight(values)}" customHeight="1">${cells}</row>`);
-      metaRows.push({excel_id:companyId,no:i.no||'',model:i.model||'',created:i.created||'',updated:i.updated||''});
+      metaRows.push({excel_id:companyId,no:i.no||'',model:i.model||'',created:i.created||'',submitted_date:issueSubmittedDate(i),updated:i.updated||''});
     });
 
     const lastRow=Math.max(1,rows.length+1);
@@ -2125,6 +2197,9 @@ async function exportExcel(){
       summaryXml=replaceCompanyWorksheetCell(summaryXml,'C15',companyCell('C15',207,'','blank'));
       summaryXml=replaceCompanyWorksheetCell(summaryXml,'D15',companyCell('D15',207,'','blank'));
     }
+
+    // Summary의 Total Issue Status + 카테고리별 집계값 전체를 현재 웹 데이터로 교체합니다.
+    summaryXml=rewriteSummaryIssueStatus(summaryXml,rows);
     zip.file('xl/worksheets/sheet1.xml',summaryXml);
 
     let workbookXml=await zip.file('xl/workbook.xml').async('string');
@@ -2236,7 +2311,7 @@ async function restoreExcel(){
           closed_date:parseSimpleDate(at(r,'QA Closed Date')),
           closed_version:String(at(r,'Released Version')||'').trim(),
           updated:String(meta?.updated||now()),
-          created:String(meta?.created||submitted||'')
+          created:String(meta?.created||meta?.submitted_date||submitted||'')
         };
       }).filter(r=>r.no);
 
