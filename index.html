@@ -159,6 +159,9 @@ label{font-size:12px;font-weight:800;display:block;margin-bottom:6px}
 .card:nth-child(2)::after{background:#dbeafe}
 .card:nth-child(3)::after{background:#ede9fe}
 .card:nth-child(4)::after{background:#e5e7eb}
+.dashboard-summary-card{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+.dashboard-summary-card:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(15,23,42,.09);border-color:#cbd5e1}
+.dashboard-summary-card:focus-visible{outline:2px solid #3b82f6;outline-offset:2px}
 
 .dashboard-section-title{
   display:flex;
@@ -448,10 +451,10 @@ label{font-size:12px;font-weight:800;display:block;margin-bottom:6px}
   </div>
 
   <div class="cards">
-    <div class="card"><div class="label">전체 이슈</div><div class="value" id="c_total">0</div></div>
-    <div class="card"><div class="label">Open</div><div class="value" id="c_open">0</div></div>
-    <div class="card"><div class="label">Reopen</div><div class="value" id="c_reopen">0</div></div>
-    <div class="card"><div class="label">Close</div><div class="value" id="c_close">0</div></div>
+    <div class="card dashboard-summary-card" role="button" tabindex="0" onclick="openDashboardSummary('')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDashboardSummary('')}" title="전체 이슈 목록 보기"><div class="label">전체 이슈</div><div class="value" id="c_total">0</div></div>
+    <div class="card dashboard-summary-card" role="button" tabindex="0" onclick="openDashboardSummary('Open')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDashboardSummary('Open')}" title="전체 Open 이슈 목록 보기"><div class="label">Open</div><div class="value" id="c_open">0</div></div>
+    <div class="card dashboard-summary-card" role="button" tabindex="0" onclick="openDashboardSummary('Reopen')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDashboardSummary('Reopen')}" title="전체 Reopen 이슈 목록 보기"><div class="label">Reopen</div><div class="value" id="c_reopen">0</div></div>
+    <div class="card dashboard-summary-card" role="button" tabindex="0" onclick="openDashboardSummary('Close')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDashboardSummary('Close')}" title="전체 Close 이슈 목록 보기"><div class="label">Close</div><div class="value" id="c_close">0</div></div>
   </div>
 
   <div class="panel" style="margin-bottom:16px">
@@ -474,7 +477,6 @@ label{font-size:12px;font-weight:800;display:block;margin-bottom:6px}
       <button class="btn secondary" onclick="exportExcel()">Excel 백업</button>
       <button class="btn secondary" onclick="triggerExcelRestore()">Excel 복원</button>
       <input type="file" id="restoreFile" accept=".xls,application/vnd.ms-excel" style="display:none" onchange="restoreExcel()">
-      <button class="btn primary" onclick="openCreateForCurrentModel()">+ 이슈 등록</button>
     </div>
   </div>
 
@@ -585,7 +587,7 @@ label{font-size:12px;font-weight:800;display:block;margin-bottom:6px}
             <input id="activity_author" list="qaMemberList" value="우현식" placeholder="작성자 이름">
 
             <select id="activity_status" onchange="syncActivityClosedVersion()">
-              <option>Open</option>
+              <option value="">Status 유지</option>
               <option>Reopen</option>
               <option>Resolved</option>
               <option>Analyzing</option>
@@ -702,6 +704,19 @@ function resetIssueFilters(){
 function goDashboardHome(){
   resetIssueFilters();
   showView('dashboard');
+}
+
+function openDashboardSummary(status){
+  // 상단 요약 카드는 항상 전체 모델 기준 목록으로 이동합니다.
+  refreshModelFilter();
+  if($('f_q')) $('f_q').value='';
+  if($('f_model')) $('f_model').value='';
+  refreshCategoryFilter();
+  if($('f_project')) $('f_project').value='';
+  if($('f_status')) $('f_status').value=status||'';
+  if($('f_severity')) $('f_severity').value='';
+  if($('f_assignee')) $('f_assignee').value='';
+  showView('issues');
 }
 
 function openDashboardModel(model){
@@ -1223,7 +1238,8 @@ async function submitActivity(){
   const author=$('activity_author').value.trim()||'-';
   const body=$('activity_comment').value.trim();
   const oldStatus=issue.status;
-  const newStatus=$('activity_status').value;
+  const selectedStatus=$('activity_status').value;
+  const newStatus=selectedStatus || oldStatus;
   const statusChanged=oldStatus!==newStatus;
 
   if(!body && !statusChanged){
@@ -1276,7 +1292,7 @@ async function submitActivity(){
     const refreshed=getData().find(x=>x.no===currentNo);
     if(refreshed){
       currentNo=refreshed.no;
-      $('activity_status').value=refreshed.status;
+      $('activity_status').value=refreshed.status==='Open' ? '' : refreshed.status;
     }
 
     syncActivityClosedVersion();
@@ -1644,12 +1660,16 @@ function renderDashboard(){
         });
 
         const modelTotal=categories.reduce((sum,c)=>sum+grouped[model][c].total,0);
+        const modelOpenIssue=categories.reduce((sum,c)=>{
+          const g=grouped[model][c];
+          return sum + (g.total - g.Close);
+        },0);
 
         return `<div class="model-card">
           <div class="model-card-head">
             <div class="model-title" onclick="openDashboardModel('${jsAttrEsc(model)}')" title="${esc(model)} 전체 Issue 목록 보기">${esc(model)}</div>
             <div class="model-head-right">
-              <div class="model-meta">Total ${modelTotal} · ${categories.length} Catagory</div>
+              <div class="model-meta">Total ${modelTotal} · Open Issue ${modelOpenIssue}</div>
               ${modelTotal===0 ? `<button type="button" class="model-delete-btn" onclick="deleteModel('${jsAttrEsc(model)}')" title="이슈가 없는 이 모델을 목록에서 삭제">×</button>` : ''}
             </div>
           </div>
@@ -1704,7 +1724,7 @@ function openDetail(no){
     <div class="kv"><b>QA Closed Date</b><span>${esc(i.closed_date||'-')}</span></div>
     <div class="kv"><b>QA Closed Version</b><span>${esc(i.closed_version||'-')}</span></div>
     <div class="kv"><b>Rate</b><span>${esc(i.rate)}</span></div>`;
-  $('activity_status').value=i.status;
+  $('activity_status').value=i.status==='Open' ? '' : i.status;
   $('activity_closed_version').value=i.status==='Close' ? (i.closed_version||'') : '';
   syncActivityClosedVersion();
 
@@ -2067,11 +2087,16 @@ function parseSimpleDate(v){
   return m ? m[1]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[3]).padStart(2,'0') : text;
 }
 
-// Submitted Date의 기준은 DB의 최초 등록 시각(created)입니다.
-// 구버전에서 submitted_date가 나중 날짜로 채워진 이슈도 최초 등록일로 출력되도록 created를 우선합니다.
+// Submitted Date는 이슈의 최초 등록일을 유지합니다.
+// 구버전 데이터에서 created / submitted_date 중 하나가 수정일처럼 늦게 저장된 경우가 있을 수 있으므로
+// 두 값 중 유효한 더 이른 날짜를 최초 등록일로 사용합니다. 별도 화면 항목은 추가하지 않습니다.
 function issueSubmittedDate(i){
   if(!i) return '';
-  return parseSimpleDate(i.created||i.submitted_date||'');
+  const candidates=[i.submitted_date,i.created]
+    .map(parseSimpleDate)
+    .filter(v=>/^\d{4}-\d{2}-\d{2}$/.test(v));
+  if(!candidates.length) return '';
+  return candidates.sort()[0];
 }
 
 function closedPeriodDays(start,end){
