@@ -1,0 +1,4037 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Issue List</title>
+<style>
+:root{
+  --bg:#f4f6f9;--card:#ffffff;--line:#e5e7eb;--text:#1f2937;--muted:#64748b;
+  --nav:#10243e;--blue:#2563eb;--blue2:#1d4ed8;--soft:#eff6ff;--danger:#b91c1c;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,"Noto Sans KR",sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}
+header{height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:10}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+.side{background:var(--nav);color:#fff;padding:22px 16px;display:flex;flex-direction:column}
+.brand{display:flex;align-items:center;gap:10px;padding:0 5px 18px;border-bottom:1px solid rgba(255,255,255,.12)}
+.logo{width:40px;height:40px;background:linear-gradient(135deg,#60a5fa,#2563eb);border-radius:10px;display:grid;place-items:center;font-weight:900}
+.brand h1{font-size:17px;margin:0}.brand p{font-size:11px;color:#a9bdd2;margin:3px 0 0}
+.nav{display:flex;flex-direction:column;gap:7px;margin-top:18px}
+.nav button{border:0;background:transparent;color:#cbd5e1;padding:11px 12px;border-radius:8px;text-align:left;font-weight:700;cursor:pointer}
+.nav button.active,.nav button:hover{background:#1c3552;color:#fff}
+.nav-group{display:flex;flex-direction:column}
+.nav-group-head{display:flex;align-items:center;gap:6px}
+.nav-group-head .nav-main{flex:1;min-width:0}
+.nav-toggle{flex:0 0 34px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:0;background:transparent;color:#9fb4cc;border-radius:8px;font-size:15px;cursor:pointer;padding:0}
+.nav-toggle:hover,.nav-toggle.active{background:#1c3552;color:#fff}
+.nav-sub{display:none;flex-direction:column;gap:3px;padding:4px 4px 2px 16px;margin-top:2px}
+.nav-sub.open{display:flex}
+.nav-sub-item{border:0;background:transparent;color:#9fb4cc;padding:8px 10px;border-radius:7px;text-align:left;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-sub-item:hover{background:#1c3552;color:#fff}
+.nav-sub-empty{color:#5b7593;font-size:11px;padding:6px 10px}
+.side-note{margin-top:auto;background:#17304a;color:#b9c8d6;padding:12px;border-radius:10px;font-size:11px;line-height:1.6}
+.main{min-width:0}
+.content{padding:24px;max-width:1450px;margin:0 auto}
+.view{display:none}.view.active{display:block}
+.page-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:18px}
+.page-head h2{margin:0 0 5px;font-size:26px}.page-head p{margin:0;color:var(--muted);font-size:13px}
+.btn{border:0;border-radius:8px;padding:9px 13px;font-weight:800;cursor:pointer}
+.primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}
+.secondary{background:#e5e7eb;color:#334155}.danger{background:#fee2e2;color:var(--danger)}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.card,.panel,.form-card{background:#fff;border:1px solid var(--line);border-radius:12px}
+.card{padding:16px}.card .label{font-size:12px;color:var(--muted)}.card .value{font-size:28px;font-weight:900;margin-top:6px}
+.dashboard-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+.panel{overflow:hidden}.panel-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.panel-body{padding:16px}
+.summary-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #eef0f3;font-size:13px}.summary-row:last-child{border-bottom:0}
+.filter-bar{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:9px;margin-bottom:12px;background:#fff;border:1px solid var(--line);padding:12px;border-radius:10px}
+input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:9px 10px;background:#fff;color:var(--text);outline:none}
+input:focus,select:focus,textarea:focus{border-color:#60a5fa;box-shadow:0 0 0 2px #dbeafe}
+textarea{min-height:100px;resize:vertical;line-height:1.5}
+.table-wrap{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:1050px;font-size:13px}
+th,td{padding:11px 12px;border-bottom:1px solid #edf0f3;text-align:left;vertical-align:middle}
+th{background:#f8fafc;color:#64748b;font-size:11px}tbody tr{cursor:pointer}tbody tr:hover{background:#f8fbff}
+.no{color:#2563eb;font-weight:900}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:900}
+.status-open{background:#dbeafe;color:#1d4ed8}
+.status-reopen{background:#ede9fe;color:#6d28d9}
+.status-resolved{background:#ffedd5;color:#c2410c}
+.status-analyzing{background:#fef3c7;color:#92400e}
+.status-monitoring{background:#dcfce7;color:#166534}
+.status-close{background:#e5e7eb;color:#475569}
+.sev-critical{background:#fee2e2;color:#b91c1c}
+.sev-major{background:#ffedd5;color:#c2410c}
+.sev-average{background:#fef3c7;color:#92400e}
+.sev-minor{background:#e0f2fe;color:#0369a1}
+.form-card{padding:20px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.full{grid-column:1/-1}
+label{font-size:12px;font-weight:800;display:block;margin-bottom:6px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.actions.end{justify-content:flex-end;margin-top:16px}
+.detail-layout{display:grid;grid-template-columns:1.35fr .65fr;gap:16px}
+.detail-main,.detail-side{background:#fff;border:1px solid var(--line);border-radius:12px}.detail-main{padding:20px}.detail-side{padding:16px;height:max-content}
+.section{margin-top:22px}.section h4{margin:0 0 7px;font-size:13px;color:#475569}.box{background:#f8fafc;border:1px solid #edf0f3;border-radius:8px;padding:12px;white-space:pre-wrap;line-height:1.6;font-size:13px}
+.kv{display:grid;grid-template-columns:100px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid #edf0f3;font-size:12px}.kv:last-child{border-bottom:0}.kv b{color:#64748b}
+.backup-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.backup-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px}.backup-card p{font-size:12px;color:var(--muted);line-height:1.6}
+@media(max-width:1000px){.app{grid-template-columns:1fr}.side{display:none}.cards{grid-template-columns:repeat(2,1fr)}.dashboard-grid,.detail-layout,.backup-grid{grid-template-columns:1fr}.filter-bar{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.content{padding:16px}.cards,.grid,.filter-bar{grid-template-columns:1fr}.full{grid-column:auto}.page-head{flex-direction:column}}
+
+.attach-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.attach-item{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:9px 10px;font-size:12px}
+.attach-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-input-note{font-size:11px;color:#64748b;margin-top:5px}
+
+
+.header-title{display:flex;align-items:center}
+.header-status{display:flex;align-items:center;gap:8px}
+.storage-badge{font-size:11px;color:#1d4ed8;background:#eff6ff;padding:7px 10px;border-radius:999px;font-weight:800;white-space:nowrap}
+.storage-badge.warn{color:#b91c1c;background:#fee2e2}
+.model-summary-wrap{overflow:auto}
+.model-summary-table{min-width:820px}
+.model-summary-table th,.model-summary-table td{text-align:center}
+.model-summary-table th:first-child,.model-summary-table td:first-child{text-align:left}
+.model-count{font-weight:900;color:#334155}
+
+
+.panel-subtitle{margin-top:4px;font-size:11px;color:#64748b;font-weight:400}
+.issue-filter-bar{grid-template-columns:minmax(260px,2fr) repeat(5,minmax(140px,1fr))}
+.category-model-group{border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:14px}
+.category-model-group:last-child{margin-bottom:0}
+.category-model-title{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border-bottom:1px solid #e5e7eb;padding:11px 14px}
+.category-model-title b{font-size:13px}
+.category-model-title span{font-size:11px;color:#64748b}
+.category-model-table-wrap{overflow:auto}
+.category-model-table{width:100%;min-width:760px;border-collapse:collapse}
+.category-model-table th,.category-model-table td{padding:10px 12px;border-bottom:1px solid #edf0f3;text-align:center;font-size:12px}
+.category-model-table th{background:#fff;color:#64748b;font-size:10px}
+.category-model-table th:first-child,.category-model-table td:first-child{text-align:left}
+.category-model-table tbody tr:last-child td{border-bottom:0}
+.model-total{font-weight:900;color:#1d4ed8}
+.model-name{font-weight:800;color:#334155}
+@media(max-width:1200px){.issue-filter-bar{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.issue-filter-bar{grid-template-columns:1fr}}
+
+.category-badge{background:#f1f5f9;color:#475569}\n
+/* Model별 Issue 현황 가독성 */
+.category-model-table th:nth-child(n+2),
+.category-model-table td:nth-child(n+2){
+  font-weight:800;
+  color:#1f2937;
+}
+.category-model-table th:nth-child(2),
+.category-model-table td:nth-child(2){
+  font-weight:900;
+}
+
+
+/* ===== Dashboard polish ===== */
+.cards{
+  gap:16px;
+}
+.card{
+  position:relative;
+  overflow:hidden;
+  padding:18px 18px 16px;
+  box-shadow:0 8px 24px rgba(15,23,42,.05);
+}
+.card::after{
+  content:'';
+  position:absolute;
+  width:72px;height:72px;
+  border-radius:50%;
+  right:-18px;top:-18px;
+  background:#eff6ff;
+}
+.card .label{
+  position:relative;
+  z-index:1;
+  font-size:12px;
+  font-weight:700;
+}
+.card .value{
+  position:relative;
+  z-index:1;
+  font-size:30px;
+  letter-spacing:-.5px;
+}
+.card:nth-child(2)::after{background:#dbeafe}
+.card:nth-child(3)::after{background:#ede9fe}
+.card:nth-child(4)::after{background:#e5e7eb}
+.dashboard-summary-card{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+.dashboard-summary-card:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(15,23,42,.09);border-color:#cbd5e1}
+.dashboard-summary-card:focus-visible{outline:2px solid #3b82f6;outline-offset:2px}
+
+.dashboard-section-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:12px;
+}
+.dashboard-section-title .desc{
+  font-size:11px;
+  color:#64748b;
+  margin-top:4px;
+}
+.model-card-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+.model-card{
+  border:1px solid #e5e7eb;
+  border-radius:14px;
+  background:#fff;
+  overflow:hidden;
+  box-shadow:0 7px 20px rgba(15,23,42,.045);
+}
+.model-card-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:14px 16px;
+  background:linear-gradient(180deg,#fbfdff 0%,#f8fafc 100%);
+  border-bottom:1px solid #e5e7eb;
+}
+.model-card-head .model-title{
+  font-size:15px;
+  font-weight:900;
+  color:#0f172a;
+  cursor:pointer;
+  transition:color .15s;
+}
+.model-card-head .model-title:hover{
+  color:#2563eb;
+  text-decoration:underline;
+}
+.model-card-head .model-meta{
+  font-size:11px;
+  color:#64748b;
+  white-space:nowrap;
+}
+.model-head-right{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex:0 0 auto;
+}
+.model-delete-btn{
+  border:0;
+  background:#fee2e2;
+  color:#b91c1c;
+  width:20px;height:20px;min-width:20px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:900;
+  line-height:1;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.model-delete-btn:hover{background:#fecaca}
+.category-list{
+  padding:6px 14px 10px;
+}
+.category-row{
+  display:grid;
+  grid-template-columns:110px 56px 1fr;
+  gap:10px;
+  align-items:center;
+  padding:10px 0;
+  border-bottom:1px solid #f0f2f5;
+}
+.category-row:last-child{
+  border-bottom:0;
+}
+.category-name{
+  font-size:12px;
+  font-weight:800;
+  color:#334155;
+}
+.category-total{
+  font-size:12px;
+  font-weight:900;
+  color:#1d4ed8;
+}
+.status-pills{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+}
+.mini-pill{
+  display:inline-flex;
+  cursor:pointer;
+  align-items:center;
+  gap:4px;
+  padding:4px 7px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:800;
+  background:#f1f5f9;
+  color:#475569;
+}
+.mini-pill:hover{filter:brightness(.97);box-shadow:0 0 0 1px rgba(15,23,42,.08)}
+.mini-pill b{
+  font-size:10px;
+}
+.mini-open{background:#dbeafe;color:#1d4ed8}
+.mini-reopen{background:#ede9fe;color:#6d28d9}
+.mini-resolved{background:#ffedd5;color:#c2410c}
+.mini-analyzing{background:#fef3c7;color:#92400e}
+.mini-monitoring{background:#dcfce7;color:#166534}
+.mini-close{background:#e5e7eb;color:#475569}
+.model-empty{
+  padding:34px;
+  text-align:center;
+  color:#94a3b8;
+  font-size:12px;
+}
+@media(max-width:1100px){
+  .model-card-grid{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .category-row{grid-template-columns:1fr}
+}
+
+
+/* ===== Comment / Activity ===== */
+.activity-wrap{
+  margin-top:22px;
+  border-top:1px solid #e5e7eb;
+  padding-top:20px;
+}
+.activity-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+}
+.activity-title h4{
+  margin:0;
+  font-size:14px;
+  color:#334155;
+}
+.activity-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:14px;
+}
+.activity-item{
+  border:1px solid #e5e7eb;
+  border-radius:10px;
+  background:#fff;
+  padding:12px 14px;
+}
+.activity-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:8px;
+}
+.activity-author{
+  font-size:12px;
+  font-weight:900;
+  color:#1f2937;
+}
+.activity-time{
+  font-size:11px;
+  color:#94a3b8;
+  white-space:nowrap;
+}
+.activity-head-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.activity-edit-actions{display:flex;gap:5px}
+.activity-mini-btn{border:1px solid #dbe3ed;background:#fff;color:#475569;border-radius:7px;padding:4px 8px;font-size:10px;font-weight:800;cursor:pointer}
+.activity-mini-btn:hover{background:#f8fafc}
+.activity-mini-btn.delete{color:#b91c1c;border-color:#fecaca}
+.activity-status-change{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-bottom:8px;
+  font-size:11px;
+  color:#64748b;
+}
+.activity-inline-edit{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.activity-inline-edit textarea{width:100%;min-height:92px;border:1px solid #93c5fd;border-radius:8px;padding:10px;font:inherit;resize:vertical;box-sizing:border-box}
+.activity-inline-edit-actions{display:flex;gap:6px;justify-content:flex-end}
+.activity-mini-btn.save{background:#2563eb;color:#fff;border-color:#2563eb}
+.activity-body{
+  font-size:13px;
+  line-height:1.6;
+  color:#334155;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+.activity-empty{
+  padding:18px;
+  text-align:center;
+  border:1px dashed #cbd5e1;
+  border-radius:10px;
+  color:#94a3b8;
+  font-size:12px;
+}
+.activity-form{
+  border:1px solid #dbe3ed;
+  border-radius:12px;
+  background:#f8fafc;
+  padding:14px;
+}
+.activity-form-top{
+  display:grid;
+  grid-template-columns:140px 250px 150px minmax(150px,1fr);
+  gap:8px;
+  margin-bottom:8px;
+}
+.activity-form textarea{
+  min-height:86px;
+  background:#fff;
+}
+.activity-form .actions{
+  justify-content:flex-end;
+  margin-top:8px;
+}
+.closed-version-mini{
+  display:none;
+}
+.closed-version-mini.show{
+  display:block;
+}
+@media(max-width:900px){
+  .activity-form-top{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .activity-form-top{grid-template-columns:1fr}
+  .activity-head{align-items:flex-start}
+}
+
+
+.model-project-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid #dbe3ed;background:#fff;border-radius:9px;padding:7px 9px}
+.model-project-chip button{border:0;background:transparent;padding:0;color:#1d4ed8;font-weight:800;cursor:pointer}
+.model-project-chip .count{font-size:10px;color:#64748b;background:#f1f5f9;border-radius:999px;padding:3px 6px}
+.model-project-chip .remove{color:#b91c1c;font-size:12px;padding:0 2px}
+
+
+.file-picker-row{display:flex;align-items:center;gap:8px}
+.file-picker-row input[type="file"]{flex:1;min-width:0}
+.file-picker-row .btn{flex:0 0 auto;white-space:nowrap}
+@media(max-width:650px){.file-picker-row{align-items:stretch}.file-picker-row .btn{padding-left:12px;padding-right:12px}}
+
+
+/* ===== Project management ===== */
+.project-manage-layout{display:grid;grid-template-columns:minmax(280px,.62fr) minmax(520px,1.38fr);gap:16px;align-items:start}
+.project-form-title{font-size:15px;font-weight:900;margin-bottom:4px}
+.project-form-desc{font-size:11px;color:#64748b;margin-bottom:16px;line-height:1.5}
+.project-message{display:none;margin-top:12px;padding:10px 12px;border-radius:8px;font-size:12px;line-height:1.5}
+.project-message.show{display:block}.project-message.success{background:#ecfdf5;color:#166534;border:1px solid #bbf7d0}.project-message.error{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}.project-message.info{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.project-table{min-width:700px}.project-table tbody tr{cursor:default}.project-table tbody tr:hover{background:#fff}
+.project-name-link{border:0;background:transparent;color:#2563eb;font-weight:900;cursor:pointer;padding:0;text-align:left}
+.project-row-actions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}.project-row-actions .btn{padding:6px 9px;font-size:11px}
+.project-delete-confirm{margin-top:7px;display:flex;gap:6px;align-items:center;justify-content:flex-end;font-size:11px;color:#b91c1c}
+.project-delete-confirm button{border:0;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:800;cursor:pointer}
+.project-delete-yes{background:#b91c1c;color:#fff}.project-delete-no{background:#e5e7eb;color:#334155}
+.company-backup-note{font-size:11px;color:#64748b;margin-top:7px;line-height:1.5}
+@media(max-width:1000px){.project-manage-layout{grid-template-columns:1fr}}
+
+/* ===== Project > Model hierarchy ===== */
+.project-top-form{margin-bottom:16px}.project-top-form-row{display:grid;grid-template-columns:minmax(240px,1fr) auto auto;gap:8px;align-items:center}
+.project-schema-notice{margin-bottom:14px;padding:12px 14px;border:1px solid #fde68a;background:#fffbeb;color:#92400e;border-radius:10px;font-size:12px;line-height:1.55}
+.project-group-grid{display:grid;grid-template-columns:1fr;gap:12px;align-items:start;max-width:980px}
+.project-group-card{background:#fff;border:1px solid #dbe3ef;border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.03)}
+.project-group-head{padding:13px 14px 11px;border-bottom:1px solid #edf2f7;background:#fff}.project-group-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.project-group-title{border:0;background:transparent;padding:0;color:#0f172a;font-size:15px;font-weight:900;cursor:pointer;text-align:left}.project-group-meta{font-size:11px;color:#64748b;margin-top:5px}
+.project-group-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.project-group-actions .btn{padding:5px 8px;font-size:10px}
+.project-model-list{padding:4px 12px}.project-model-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:9px 8px;border-bottom:1px solid #f1f5f9}.project-model-row:last-child{border-bottom:0}
+.project-model-main{min-width:0}.project-model-name{border:0;background:transparent;padding:0;color:#2563eb;font-weight:850;cursor:pointer;text-align:left;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.project-model-meta{font-size:10px;color:#94a3b8;margin-top:3px}
+.project-model-actions{display:flex;gap:4px}.project-model-actions button{border:0;background:#f1f5f9;color:#475569;border-radius:6px;padding:5px 7px;font-size:10px;font-weight:800;cursor:pointer}.project-model-actions button.danger{background:#fff1f2;color:#be123c}
+.project-model-add{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;padding:10px 12px;border-top:1px solid #edf2f7;background:#fff}.project-model-add input{min-width:0}
+.project-model-edit{padding:9px;background:#eff6ff;border-radius:8px;margin:4px 0}.project-model-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.project-model-edit-actions{display:flex;justify-content:flex-end;gap:5px;margin-top:6px}
+.project-tree-grid{display:grid;grid-template-columns:repeat(3,minmax(220px,1fr));gap:10px}.project-tree-card{border:1px solid #e2e8f0;border-radius:10px;padding:11px;background:#fff}.project-tree-title{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}.project-tree-title button{border:0;background:transparent;padding:0;font-weight:900;color:#0f172a;cursor:pointer}.project-tree-count{font-size:10px;color:#64748b}.project-tree-models{display:flex;gap:6px;flex-wrap:wrap}.project-tree-model{border:1px solid #dbeafe;background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:800;cursor:pointer}.project-tree-empty{font-size:10px;color:#94a3b8}
+.dashboard-project-section{margin-bottom:14px}.dashboard-project-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 4px}.dashboard-project-name{border:0;background:transparent;padding:0;font-size:13px;font-weight:900;color:#0f172a;cursor:pointer}.dashboard-project-meta{font-size:10px;color:#64748b}
+@media(max-width:1100px){.project-tree-grid{grid-template-columns:repeat(2,minmax(260px,1fr))}}
+@media(max-width:760px){.project-group-grid,.project-tree-grid{grid-template-columns:1fr}.project-top-form-row{grid-template-columns:1fr}.project-model-edit-grid{grid-template-columns:1fr}}
+
+.nav-issue-row{display:flex;align-items:center;gap:6px}
+.nav-issue-row>button[data-view="issues"]{flex:1;margin:0}
+.nav-tree-toggle{width:34px;min-width:34px;height:34px;border:0;border-radius:8px;background:transparent;color:#64748b;cursor:pointer;font-size:18px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.nav-tree-toggle:hover{background:#f1f5f9;color:#0f172a}
+.issue-nav-tree{display:block;margin:4px 0 4px 10px;padding-left:10px;border-left:1px solid #e2e8f0}
+.issue-nav-tree.open{display:block}
+.issue-nav-project{margin:3px 0}
+.issue-nav-project-row{display:flex;align-items:center;gap:4px}
+.issue-nav-project-row .project-link{flex:1;border:0;background:transparent;color:#334155;text-align:left;padding:7px 8px;border-radius:7px;font-size:12px;font-weight:800;cursor:pointer}
+.issue-nav-project-row .project-link:hover{background:#f8fafc;color:#0f172a}
+.issue-nav-project-row .model-toggle{width:28px;min-width:28px;height:28px;border:0;border-radius:7px;background:transparent;color:#94a3b8;cursor:pointer;font-size:16px;font-weight:900}
+.issue-nav-project-row .model-toggle:hover{background:#f1f5f9;color:#475569}
+.issue-nav-models{display:none;margin:2px 0 4px 8px;padding-left:9px;border-left:1px dashed #cbd5e1}
+.issue-nav-models.open{display:block}
+.issue-nav-model{display:block;width:100%;border:0;background:transparent;text-align:left;padding:6px 8px;border-radius:6px;color:#64748b;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.issue-nav-model:hover{background:#f8fafc;color:#2563eb}
+.issue-nav-empty{padding:5px 8px;color:#94a3b8;font-size:10px}
+
+/* ===== Confirm popup ===== */
+.confirm-modal-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.42);z-index:9999;align-items:center;justify-content:center;padding:20px}
+.confirm-modal-backdrop.open{display:flex}
+.confirm-modal{width:min(420px,100%);background:#fff;border-radius:14px;box-shadow:0 24px 70px rgba(15,23,42,.28);border:1px solid #e5e7eb;overflow:hidden}
+.confirm-modal-head{padding:18px 20px 10px;font-size:16px;font-weight:900;color:#0f172a}
+.confirm-modal-body{padding:0 20px 18px;font-size:13px;line-height:1.6;color:#475569}
+.confirm-modal-actions{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;background:#f8fafc;border-top:1px solid #e5e7eb}
+
+
+/* ===== v35 navigation / dashboard readability ===== */
+/* Catagory명과 Status pill을 한 줄에 나란히 표시 */
+.category-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 0;
+}
+.category-name{flex:0 0 105px;min-width:105px}
+.category-pills{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+
+/* 좌측 메뉴: 어두운 배경에서 구분이 분명하도록 밝은 계열 사용 */
+.side .nav>button[data-view],
+.side .nav-issue-row>button[data-view]{color:#e5edf7}
+.side .nav>button[data-view]:hover,
+.side .nav-issue-row>button[data-view]:hover{background:#214464;color:#fff}
+.side .nav>button[data-view].active,
+.side .nav-issue-row>button[data-view].active{background:#2563eb;color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.10) inset}
+.side .nav-tree-toggle{color:#93c5fd;background:rgba(96,165,250,.10)}
+.side .nav-tree-toggle:hover{background:rgba(96,165,250,.22);color:#fff}
+.side .issue-nav-tree{border-left-color:#3f5f80}
+.side .issue-nav-project-row .project-link{color:#dbeafe}
+.side .issue-nav-project-row .project-link:hover{background:#1c3552;color:#fff}
+.side .issue-nav-project-row .model-toggle{color:#93c5fd}
+.side .issue-nav-project-row .model-toggle:hover{background:#1c3552;color:#fff}
+.side .issue-nav-models{border-left-color:#4b6b8b}
+.side .issue-nav-model{color:#bcd3ec}
+.side .issue-nav-model:hover{background:#1c3552;color:#fff}
+
+@media(max-width:700px){
+  .category-row{align-items:flex-start;flex-direction:column;gap:7px}
+  .category-name{min-width:0}
+}
+
+
+
+/* ===== 전체 이슈 목록 > 프로젝트별 Model 상태 표시 ===== */
+.project-tree-models{display:flex;flex-direction:column;gap:8px}
+.project-tree-model-row{display:grid;grid-template-columns:minmax(90px,auto) auto 1fr;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f1f5f9}
+.project-tree-model-row:last-child{border-bottom:0}
+.project-tree-model-name{border:0;background:transparent;color:#1d4ed8;padding:2px 0;font-size:12px;font-weight:900;cursor:pointer;text-align:left;width:max-content;max-width:100%;text-decoration:none}
+.project-tree-model-name:hover{color:#1e40af;text-decoration:underline}
+.issue-filter-bar.project-scope{grid-template-columns:minmax(260px,2fr) repeat(4,minmax(140px,1fr))}
+.issue-filter-bar.project-scope #f_group{display:none}
+@media(max-width:1200px){.issue-filter-bar.project-scope{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.issue-filter-bar.project-scope{grid-template-columns:1fr}}
+.project-tree-total{font-size:10px;font-weight:800;color:#64748b;white-space:nowrap}
+.project-tree-statuses{display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-width:0}
+@media(max-width:760px){.project-tree-model-row{grid-template-columns:1fr}.project-tree-total{margin-top:-2px}}
+
+
+/* ===== v42 Issue filter layout ===== */
+.issue-filter-bar{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:9px;
+}
+.issue-filter-bar #f_q{grid-column:1/-1}
+.issue-filter-bar.project-scope{grid-template-columns:repeat(5,minmax(0,1fr))}
+.issue-filter-bar.project-scope #f_group{display:none}
+.issue-filter-bar.model-scope{grid-template-columns:repeat(4,minmax(0,1fr))}
+.issue-filter-bar.model-scope #f_group,
+.issue-filter-bar.model-scope #f_model{display:none}
+.issue-filter-bar #f_assignee{min-width:0}
+@media(max-width:1200px){
+  .issue-filter-bar,
+  .issue-filter-bar.project-scope,
+  .issue-filter-bar.model-scope{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .issue-filter-bar #f_q{grid-column:1/-1}
+}
+@media(max-width:700px){
+  .issue-filter-bar,
+  .issue-filter-bar.project-scope,
+  .issue-filter-bar.model-scope{grid-template-columns:1fr}
+  .issue-filter-bar #f_q{grid-column:auto}
+}
+
+
+
+/* ===== v46 UI 정리 ===== */
+:root{--nav:#0f2742;--blue:#2563eb;--line:#dfe5ec;--bg:#f6f8fb}
+.side{padding:20px 14px;background:linear-gradient(180deg,#0f2742 0%,#102d4d 100%);box-shadow:6px 0 24px rgba(15,39,66,.08)}
+.brand{padding:0 7px 19px}.brand h1{font-size:18px}.brand p{color:#9fb5cc}
+.nav{gap:6px}.nav>button,.nav-issue-row>button[data-view="issues"]{color:#d7e2ee;padding:12px 13px;border:1px solid transparent}
+.nav>button:hover,.nav>button.active,.nav-issue-row>button[data-view="issues"]:hover,.nav-issue-row>button[data-view="issues"].active{background:#1b4269;color:#fff;border-color:#315778}
+.nav-tree-toggle{color:#b9cbe0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+.nav-tree-toggle:hover{background:#1b4269;color:#fff}
+.issue-nav-tree{border-left:1px solid #365778;margin-left:11px}.issue-nav-project-row .project-link{color:#dbe7f3}.issue-nav-project-row .project-link:hover{background:#173b60;color:#fff}
+.issue-nav-project-row .model-toggle{color:#9eb8d2}.issue-nav-models{border-left-color:#466988}.issue-nav-model{color:#a9c1d8}.issue-nav-model:hover{background:#173b60;color:#fff}
+header{height:62px;padding:0 28px;box-shadow:0 1px 0 rgba(15,23,42,.04)}
+.content{padding:28px 30px 40px}.page-head{align-items:center;margin-bottom:20px}.page-head h2{font-size:25px;letter-spacing:-.5px}.page-head p{line-height:1.55}
+.card,.panel,.form-card,.backup-card{border-color:#e1e7ee;box-shadow:0 4px 18px rgba(15,23,42,.035)}
+.panel{border-radius:13px}.panel-head{padding:15px 18px;background:#fbfcfe}.panel-body{padding:17px 18px}
+.btn{border-radius:8px;padding:9px 14px;transition:.15s}.btn:hover{transform:translateY(-1px)}
+.secondary{background:#f1f5f9;color:#334155;border:1px solid #dce4ed}.primary{box-shadow:0 4px 10px rgba(37,99,235,.15)}
+.filter-bar{border-color:#e1e7ee;box-shadow:0 3px 12px rgba(15,23,42,.025);padding:13px;gap:10px}
+.filter-bar input,.filter-bar select{height:40px;background:#fff}
+.table-wrap{border-color:#e1e7ee;box-shadow:0 4px 16px rgba(15,23,42,.025)}
+th{background:#f4f7fa;color:#526277;font-weight:800;letter-spacing:.02em}td{height:48px}tbody tr:hover{background:#f5f9ff}
+.project-group-card{border-color:#dfe6ee;box-shadow:0 5px 18px rgba(15,23,42,.035)}.project-group-head{padding:15px 16px;background:#fbfcfe}.project-model-row{padding:11px 8px}
+.model-card{box-shadow:none;border-color:#e1e7ee}.model-card-head{background:#f8fafc}.category-row{padding:9px 0}
+.status-open,.mini-open{background:#dbeafe;color:#1d4ed8}.status-reopen,.mini-reopen{background:#ede9fe;color:#6d28d9}.status-resolved,.mini-resolved{background:#ffedd5;color:#c2410c}.status-analyzing,.mini-analyzing{background:#fef3c7;color:#92400e}.status-monitoring,.mini-monitoring{background:#dcfce7;color:#166534}.status-close,.mini-close{background:#e5e7eb;color:#475569}
+.issue-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.issue-tools .btn{min-width:92px}.backup-hint{font-size:10px;color:#94a3b8;margin-top:5px;text-align:right}
+
+/* 복원 미리보기 */
+.restore-modal-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.restore-modal-backdrop.show{display:flex}.restore-modal{width:min(560px,100%);background:#fff;border-radius:16px;box-shadow:0 24px 70px rgba(15,23,42,.3);overflow:hidden}
+.restore-modal-head{padding:18px 20px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center}.restore-modal-head b{font-size:17px}.restore-modal-close{border:0;background:transparent;font-size:22px;color:#64748b;cursor:pointer}
+.restore-modal-body{padding:18px 20px}.restore-summary{display:grid;grid-template-columns:120px 1fr;gap:9px 12px;padding:14px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;font-size:12px}.restore-summary b{color:#64748b}.restore-warning{margin-top:14px;padding:11px 12px;border-radius:9px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:11px;line-height:1.55}
+.restore-target{margin-top:14px}.restore-target label{margin-bottom:7px}.restore-modal-actions{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid #e5e7eb;background:#fafbfc}
+.restore-progress{display:none;margin-top:12px;color:#2563eb;font-size:11px;font-weight:800}.restore-progress.show{display:block}
+@media(max-width:700px){.content{padding:18px 14px 30px}.restore-summary{grid-template-columns:1fr}.backup-hint{text-align:left}}
+
+
+/* ===== v48 종합 UI 리뉴얼: 색상·간격·상호작용 다듬기 ===== */
+:root{--radius:12px;--shadow-sm:0 2px 8px rgba(15,23,42,.05);--shadow-md:0 10px 24px rgba(15,23,42,.08);--ease:cubic-bezier(.4,0,.2,1)}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{letter-spacing:-.1px}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#c9d3e0;border-radius:999px;border:2px solid #f6f8fb}
+::-webkit-scrollbar-thumb:hover{background:#aab6c8}
+.side::-webkit-scrollbar-thumb{background:#2c4a6b;border-color:#0f2742}
+
+/* 접근성: 포커스 링 */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{
+  outline:2px solid #3b82f6;outline-offset:2px;border-radius:6px;
+}
+
+/* 버튼 상호작용 다듬기 */
+.btn{transition:transform .12s var(--ease),box-shadow .12s var(--ease),background-color .12s var(--ease),opacity .12s var(--ease);letter-spacing:-.1px}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none !important;box-shadow:none !important}
+.primary{box-shadow:0 6px 16px rgba(37,99,235,.22)}
+.primary:hover{box-shadow:0 10px 22px rgba(37,99,235,.3)}
+.secondary:hover{background:#e4e9f1;border-color:#cfd8e4}
+.danger:hover{background:#fbd4d4}
+
+/* 사이드바 액티브 인디케이터 */
+.side .nav{position:relative}
+.side .nav>button[data-view],.side .nav-issue-row>button[data-view="issues"]{position:relative;transition:background-color .15s var(--ease),color .15s var(--ease)}
+.side .nav>button[data-view].active::before,.side .nav-issue-row>button[data-view="issues"].active::before{
+  content:'';position:absolute;left:-14px;top:50%;transform:translateY(-50%);width:3px;height:18px;border-radius:0 3px 3px 0;background:#7fb0ff;
+}
+.brand .logo{box-shadow:0 4px 12px rgba(37,99,235,.35)}
+
+/* 카드 / 패널 모서리 통일 */
+.card,.panel,.form-card,.backup-card,.model-card,.detail-main,.detail-side,.table-wrap{border-radius:var(--radius)}
+.panel-head{border-radius:var(--radius) var(--radius) 0 0}
+
+/* 이슈 목록: 헤더 고정 + 스크롤 영역 */
+#issueTableWrap{max-height:min(640px,calc(100vh - 260px));overflow:auto}
+#issueTableWrap thead th{position:sticky;top:0;z-index:2;box-shadow:0 1px 0 #e7ebf1}
+tbody tr{transition:background-color .1s var(--ease)}
+
+/* 배지 다듬기 */
+.badge{letter-spacing:.02em;border:1px solid rgba(15,23,42,.05)}
+
+/* 입력 필드 전환 */
+input,select,textarea{transition:border-color .12s var(--ease),box-shadow .12s var(--ease)}
+label{color:#475569;letter-spacing:.01em}
+
+/* 모달 */
+.restore-modal-backdrop,.confirm-modal-backdrop{backdrop-filter:blur(2px)}
+.restore-modal,.confirm-modal{animation:qaModalIn .16s var(--ease)}
+@keyframes qaModalIn{from{opacity:0;transform:translateY(6px) scale(.98)}to{opacity:1;transform:none}}
+
+/* 안내 배너 (백업/복원 등에서 재사용) */
+.notice{display:flex;gap:9px;align-items:flex-start;padding:11px 13px;border-radius:10px;font-size:12px;line-height:1.6}
+.notice-info{background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8}
+.notice-warn{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
+.notice b{font-weight:900}
+
+/* 백업/복원 툴바 */
+.backup-toolbar{display:flex;flex-direction:column;gap:9px;align-items:flex-end}
+.backup-group{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.backup-group .btn{min-width:96px}
+.backup-group-label{font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-right:2px}
+.btn-recommend{position:relative}
+.btn-recommend::after{content:'권장';position:absolute;top:-9px;right:-8px;background:#16a34a;color:#fff;font-size:9px;font-weight:900;padding:2px 6px;border-radius:999px;box-shadow:0 2px 6px rgba(22,163,74,.4)}
+@media(max-width:700px){
+  #issueTableWrap{max-height:none}
+  .backup-toolbar{align-items:stretch;width:100%}
+  .backup-group{justify-content:flex-start}
+}
+
+/* 이슈 목록 페이지네이션 */
+.issue-pagination{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;margin-top:14px}
+.issue-pagination .page-btn,.issue-pagination .page-nav{
+  border:1px solid #e1e7ee;background:#fff;color:#334155;border-radius:8px;
+  min-width:34px;height:34px;padding:0 10px;font-size:12px;font-weight:800;cursor:pointer;
+  transition:background-color .12s var(--ease),border-color .12s var(--ease),color .12s var(--ease);
+}
+.issue-pagination .page-btn:hover,.issue-pagination .page-nav:hover:not(:disabled){background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+.issue-pagination .page-btn.active{background:linear-gradient(135deg,#3b7bf5,#1d4ed8);border-color:transparent;color:#fff;box-shadow:0 4px 10px rgba(37,99,235,.25)}
+.issue-pagination .page-nav:disabled{opacity:.4;cursor:not-allowed}
+.issue-pagination .page-ellipsis{color:#94a3b8;padding:0 2px;font-size:12px;font-weight:800}
+.issue-pagination .page-summary{width:100%;text-align:center;font-size:11px;color:#64748b;margin-top:2px}
+@media(max-width:700px){.issue-pagination .page-summary{order:99}}
+
+
+
+/* ===== v54 Dashboard graph view ===== */
+.category-list{padding:8px 14px 12px}
+.category-row{
+  display:grid;
+  grid-template-columns:110px minmax(0,1fr);
+  gap:10px;
+  align-items:start;
+  padding:12px 0;
+  border-bottom:1px solid #eef2f7;
+}
+.category-row:last-child{border-bottom:0}
+.category-name{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  font-size:12px;
+  font-weight:900;
+  color:#334155;
+}
+.category-name .category-total-text{
+  font-size:11px;
+  font-weight:700;
+  color:#64748b;
+}
+.category-graph-wrap{min-width:0;display:flex;flex-direction:column;gap:8px}
+.category-graph{
+  display:flex;
+  align-items:stretch;
+  width:100%;
+  min-height:20px;
+  background:#f1f5f9;
+  border-radius:999px;
+  overflow:hidden;
+  border:1px solid #e2e8f0;
+}
+.status-seg{
+  min-width:0;
+  border:0;
+  padding:0;
+  margin:0;
+  cursor:pointer;
+  position:relative;
+  transition:filter .12s ease, opacity .12s ease;
+}
+.status-seg:hover{filter:brightness(.97)}
+.status-seg:focus-visible{outline:2px solid #2563eb;outline-offset:1px;z-index:2}
+.status-seg-open{background:#60a5fa}
+.status-seg-reopen{background:#a78bfa}
+.status-seg-resolved{background:#fb923c}
+.status-seg-analyzing{background:#facc15}
+.status-seg-monitoring{background:#4ade80}
+.status-seg-close{background:#94a3b8}
+.category-legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.category-legend .mini-pill{
+  cursor:pointer;
+  border:1px solid rgba(15,23,42,.06);
+}
+.category-legend .mini-pill b{font-size:10px}
+.graph-empty{
+  min-height:20px;
+  display:flex;
+  align-items:center;
+  color:#94a3b8;
+  font-size:11px;
+}
+@media(max-width:700px){
+  .category-row{grid-template-columns:1fr}
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+  <div class="brand" onclick="goDashboardHome()" title="대시보드로 이동" style="cursor:pointer"><div class="logo">QA</div><div><h1>QA Issue List</h1><p>QA Issue Manager</p></div></div>
+  <div class="nav">
+    <button class="active" data-view="dashboard">대시보드</button>
+    <button data-view="projects">프로젝트 관리</button>
+    <button data-view="create">이슈 등록</button>
+    <div class="nav-issue-row">
+      <button data-view="issues">전체 이슈 목록</button>
+    </div>
+    <div id="issueNavTree" class="issue-nav-tree"></div>
+  </div>
+</aside>
+
+<main class="main">
+<header><div class="header-title"><b>QA Issue List</b></div><div class="header-status"><span id="storageStatus" class="storage-badge">Storage 계산 중...</span><span id="connStatus" style="font-size:11px;color:#64748b;background:#f1f5f9;padding:7px 10px;border-radius:999px">Connecting…</span></div></header>
+
+<div class="content">
+
+<section id="dashboard" class="view active">
+  <div class="page-head">
+    <div><h2>대시보드</h2><p>QA Issue 현황을 확인합니다.</p></div>
+  </div>
+
+  <div class="cards">
+    <div class="card dashboard-summary-card" role="button" tabindex="0" onclick="openDashboardSummary('')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDashboardSummary('')}" title="전체 이슈 목록 보기"><div class="label">전체 이슈</div><div class="value" id="c_total">0</div></div>
+    <div class="card dashboard-summary-card" role="button" tabindex="0" onclick="openDashboardSummary('Open')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDashboardSummary('Open')}" title="전체 Open 이슈 목록 보기"><div class="label">Open</div><div class="value" id="c_open">0</div></div>
+    <div class="card dashboard-summary-card" role="button" tabindex="0" onclick="openDashboardSummary('Reopen')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDashboardSummary('Reopen')}" title="전체 Reopen 이슈 목록 보기"><div class="label">Reopen</div><div class="value" id="c_reopen">0</div></div>
+    <div class="card dashboard-summary-card" role="button" tabindex="0" onclick="openDashboardSummary('Close')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDashboardSummary('Close')}" title="전체 Close 이슈 목록 보기"><div class="label">Close</div><div class="value" id="c_close">0</div></div>
+  </div>
+
+  <div class="panel" style="margin-bottom:16px">
+    <div class="panel-head">
+      <div class="dashboard-section-title">
+        <div>
+          <b>프로젝트 / Model별 Issue 현황</b>
+          <div class="desc">프로젝트 아래 Model을 구분하고 각 Model의 Catagory별 Issue Status를 확인합니다.</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel-body" id="categoryModelSummary"></div>
+  </div>
+</section>
+
+<section id="issues" class="view">
+  <div class="page-head">
+    <div><h2 id="issuePageTitle">전체 모델 이슈 목록</h2><p id="issuePageDesc">모든 모델의 이슈를 한 곳에서 조회하고 조건별로 필터링합니다.</p></div>
+    <div class="backup-toolbar">
+      <div class="backup-group">
+        <button class="btn primary" onclick="exportExcel(this)">Excel 백업</button>
+        <button class="btn secondary" onclick="triggerExcelRestore()">Excel 복원</button>
+        <input type="file" id="restoreFile" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" style="display:none" onchange="restoreExcel()">
+      </div>
+      <div class="backup-hint">현재 보고 있는 범위(Project/Model 필터) 기준으로 Excel 백업/복원됩니다.</div>
+    </div>
+  </div>
+
+  <div class="panel" id="modelProjectPanel" style="margin-bottom:12px">
+    <div class="panel-head">
+      <div><b>프로젝트별 모델</b><div class="panel-subtitle">프로젝트를 선택하면 해당 프로젝트의 모델별 상세가 표시되고, 모델을 선택하면 해당 모델의 이슈 목록으로 이동합니다.</div></div>
+      <button type="button" id="issueProjectManageBtn" class="btn secondary" onclick="openProjectManager()">프로젝트 관리</button>
+    </div>
+    <div class="panel-body" id="registeredProjectTree"></div>
+  </div>
+
+  <div class="filter-bar issue-filter-bar" id="issueFilterBar">
+    <input id="f_q" placeholder="No. 또는 Headline 검색" oninput="renderIssues()">
+    <select id="f_group" onchange="onProjectGroupFilterChange()">
+      <option value="">Project</option>
+    </select>
+    <select id="f_model" onchange="onModelFilterChange()">
+      <option value="">Model</option>
+    </select>
+    <select id="f_project" onchange="renderIssues()">
+      <option value="">Catagory</option>
+    </select>
+    <select id="f_status" onchange="renderIssues()">
+      <option value="">Status</option>
+      <option>Open</option><option>Reopen</option><option>Resolved</option><option>Analyzing</option><option>Monitoring</option><option>Close</option>
+    </select>
+    <select id="f_severity" onchange="renderIssues()">
+      <option value="">Severity</option>
+      <option>Critical</option><option>Major</option><option>Average</option><option>Minor</option>
+    </select>
+    <input id="f_assignee" placeholder="담당자 검색" oninput="renderIssues()">
+  </div>
+
+  <div class="table-wrap" id="issueTableWrap">
+    <table>
+      <thead><tr><th>No.</th><th>Catagory</th><th>Headline</th><th>Status</th><th>Severity</th><th>Assignee</th><th>Reporter</th><th>Updated</th></tr></thead>
+      <tbody id="issueBody"></tbody>
+    </table>
+  </div>
+  <div class="issue-pagination" id="issuePagination"></div>
+</section>
+
+<section id="projects" class="view">
+  <div class="page-head">
+    <div><h2>프로젝트 관리</h2><p>프로젝트별로 여러 Model을 구성하고 관리합니다.</p></div>
+  </div>
+
+  <div id="projectSchemaNotice" class="project-schema-notice" style="display:none"></div>
+
+  <div class="project-top-form form-card">
+    <div>
+      <div class="project-form-title" id="projectFormTitle">프로젝트 등록</div>
+      <div class="project-form-desc">예: 유니온 / SK쉴더스 / NEC. 프로젝트 안에 여러 Model을 등록할 수 있습니다.</div>
+    </div>
+    <div class="project-top-form-row">
+      <input id="p_name" placeholder="프로젝트명" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();saveProjectGroup()}">
+      <button class="btn secondary" id="p_cancel" type="button" onclick="cancelProjectGroupEdit()" style="display:none">취소</button>
+      <button class="btn primary" id="p_save" type="button" onclick="saveProjectGroup()">프로젝트 등록</button>
+    </div>
+    <div id="projectMessage" class="project-message"></div>
+  </div>
+
+  <div id="projectGroupGrid" class="project-group-grid"></div>
+</section>
+
+<section id="create" class="view">
+  <div class="page-head"><div><h2>이슈 등록</h2><p>QA 이슈 정보를 입력합니다.</p></div></div>
+  <div class="form-card">
+    <div class="grid">
+      <div><label>Catagory</label><select id="i_project"><option>FW</option><option>HW</option><option>SW</option><option>ME</option><option>Field</option><option>Etc</option><option>Manual</option></select></div>
+      <div><label>Project</label><select id="i_group" aria-label="Project" onchange="refreshIssueModelForPrefix('i')"><option value="" selected disabled hidden></option></select></div>
+      <div><label>Model</label><select id="i_model" aria-label="Model" onchange="onIssueModelChange('i')"><option value="" selected disabled hidden></option></select></div>
+      <div class="full"><label>Headline</label><input id="i_title"></div>
+      <div><label>Status</label><select id="i_status"><option>Open</option><option>Reopen</option><option>Resolved</option><option>Analyzing</option><option>Monitoring</option><option>Close</option></select></div>
+      <div><label>Severity</label><select id="i_severity"><option>Critical</option><option>Major</option><option>Average</option><option>Minor</option></select></div>
+      <div><label>Assignee</label><input id="i_assignee"></div>
+      <div><label>Reporter</label><select id="i_reporter"><option>우현식</option><option>박상미</option><option>김연훈</option><option>황대연</option><option>김현진</option></select></div>
+      <div><label>Version</label><input id="i_version"></div>
+      <div><label>Submitted Date</label><input id="i_submitted_date" readonly placeholder="등록 시 자동 입력"></div>
+      <div><label>QA Closed Date</label><input id="i_closed_date" readonly placeholder="Close 변경 시 자동 입력"></div>
+      <div><label>QA Closed Version</label><input id="i_closed_version" placeholder="예: v1.2.14"></div>
+      <div class="full"><label>Attachment</label><div class="file-picker-row"><input type="file" id="i_files" multiple><button type="button" class="btn secondary" onclick="$('i_files').value=''">선택 취소</button></div><div class="file-input-note">여러 파일을 선택할 수 있습니다. 파일은 현재 브라우저 PC에 저장됩니다.</div></div>
+      <div class="full"><label>Operation Step</label><textarea id="i_steps"></textarea></div>
+      <div><label>Expected Result</label><textarea id="i_expected"></textarea></div>
+      <div><label>Test Result</label><textarea id="i_result"></textarea></div>
+      <div><label>Occurrence Rate</label><select id="i_rate"><option>100%</option><option>80%</option><option>50%</option><option>30%</option><option>1회</option></select></div>
+      <div><label>Comments</label><input id="i_comments"></div>
+    </div>
+    <div class="actions end">
+      <button class="btn secondary" onclick="clearCreate()">초기화</button>
+      <button class="btn primary" onclick="createIssue()">이슈 등록</button>
+    </div>
+  </div>
+</section>
+
+<section id="detail" class="view">
+  <div class="page-head">
+    <button class="btn secondary" onclick="showView('issues')">← 목록으로</button>
+    <div class="actions">
+      <button class="btn primary" onclick="openEditPage()">이슈 수정</button>
+      <button class="btn danger" onclick="deleteIssue()">삭제</button>
+    </div>
+  </div>
+  <datalist id="qaMemberList">
+    <option value="우현식"></option>
+    <option value="박상미"></option>
+    <option value="김연훈"></option>
+    <option value="황대연"></option>
+    <option value="김현진"></option>
+  </datalist>
+  <div class="detail-layout">
+    <div class="detail-main">
+      <div class="no" id="d_no"></div>
+      <h2 id="d_title"></h2>
+      <p id="d_meta" style="font-size:12px;color:#64748b"></p>
+      <div class="section"><h4>Operation Step</h4><div class="box" id="d_steps"></div></div>
+      <div class="section"><h4>Expected Result</h4><div class="box" id="d_expected"></div></div>
+      <div class="section"><h4>Test Result</h4><div class="box" id="d_result"></div></div>
+      <div class="section"><h4>Comments</h4><div class="box" id="d_comments"></div></div>
+      <div class="section"><h4>Attachment</h4><div id="d_files" class="attach-list"></div></div>
+
+      <div class="activity-wrap">
+        <div class="activity-title">
+          <h4>Comment / Activity</h4>
+        </div>
+
+        <div id="activityList" class="activity-list"></div>
+
+        <div class="activity-form">
+          <div class="activity-form-top">
+            <select id="activity_team" onchange="syncActivityAuthorList()">
+              <option value="개발검증팀" selected>개발검증팀</option>
+              <option value="개발팀">개발팀</option>
+            </select>
+
+            <input id="activity_author" list="qaMemberList" value="우현식" placeholder="작성자 이름">
+
+            <select id="activity_status" onchange="syncActivityClosedVersion()">
+              <option value="">Status 유지</option>
+              <option>Reopen</option>
+              <option>Resolved</option>
+              <option>Analyzing</option>
+              <option>Monitoring</option>
+              <option>Close</option>
+            </select>
+
+            <input id="activity_closed_version" class="closed-version-mini" placeholder="QA Closed Version">
+          </div>
+
+          <textarea id="activity_comment" placeholder="Comment를 입력하세요. 예) 수정 버전에서 재검증했으나 동일 현상 재현됩니다."></textarea>
+
+          <div class="actions">
+            <button id="activity_submit_btn" class="btn primary" type="button" onclick="submitActivity()">Comment 등록</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <aside class="detail-side" id="detailSide"></aside>
+  </div>
+</section>
+
+<section id="edit" class="view">
+  <div class="page-head">
+    <div><h2>이슈 수정</h2><p id="edit_no_text"></p></div>
+    <button class="btn secondary" onclick="openDetail(currentNo)">취소</button>
+  </div>
+  <div class="form-card">
+    <div class="grid">
+      <div><label>Catagory</label><select id="e_project"><option>FW</option><option>HW</option><option>SW</option><option>ME</option><option>Field</option><option>Etc</option><option>Manual</option></select></div>
+      <div><label>Project</label><select id="e_group" aria-label="Project" onchange="refreshIssueModelForPrefix('e')"><option value="" selected disabled hidden></option></select></div>
+      <div><label>Model</label><select id="e_model" aria-label="Model" onchange="onIssueModelChange('e')"><option value="" selected disabled hidden></option></select></div>
+      <div class="full"><label>Headline</label><input id="e_title"></div>
+      <div><label>Status</label><select id="e_status"><option>Open</option><option>Reopen</option><option>Resolved</option><option>Analyzing</option><option>Monitoring</option><option>Close</option></select></div>
+      <div><label>Severity</label><select id="e_severity"><option>Critical</option><option>Major</option><option>Average</option><option>Minor</option></select></div>
+      <div><label>Assignee</label><input id="e_assignee"></div>
+      <div><label>Reporter</label><select id="e_reporter"><option>우현식</option><option>박상미</option><option>김연훈</option><option>황대연</option><option>김현진</option></select></div>
+      <div><label>Version</label><input id="e_version"></div>
+      <div><label>Submitted Date</label><input id="e_submitted_date" readonly></div>
+      <div><label>QA Closed Date</label><input id="e_closed_date" readonly></div>
+      <div><label>QA Closed Version</label><input id="e_closed_version" placeholder="예: v1.2.14"></div>
+      <div class="full"><label>기존 Attachment</label><div id="e_existing_files" class="attach-list"></div></div>
+      <div class="full"><label>Attachment 추가</label><div class="file-picker-row"><input type="file" id="e_files" multiple><button type="button" class="btn secondary" onclick="$('e_files').value=''">선택 취소</button></div><div class="file-input-note">추가 파일을 선택할 수 있습니다.</div></div>
+      <div class="full"><label>Operation Step</label><textarea id="e_steps"></textarea></div>
+      <div><label>Expected Result</label><textarea id="e_expected"></textarea></div>
+      <div><label>Test Result</label><textarea id="e_result"></textarea></div>
+      <div><label>Occurrence Rate</label><select id="e_rate"><option>100%</option><option>80%</option><option>50%</option><option>30%</option><option>1회</option></select></div>
+      <div><label>Comments</label><input id="e_comments"></div>
+    </div>
+    <div class="actions end">
+      <button class="btn secondary" onclick="openDetail(currentNo)">취소</button>
+      <button class="btn primary" onclick="saveEdit()">수정 저장</button>
+    </div>
+  </div>
+</section>
+
+
+</div>
+</main>
+</div>
+
+
+<div id="projectDeleteModal" class="confirm-modal-backdrop" onclick="if(event.target===this)closeProjectDeleteModal()">
+  <div class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="projectDeleteModalTitle">
+    <div class="confirm-modal-head" id="projectDeleteModalTitle">프로젝트 삭제</div>
+    <div class="confirm-modal-body" id="projectDeleteModalMessage">정말 삭제할까요?</div>
+    <div class="confirm-modal-actions">
+      <button type="button" class="btn secondary" onclick="closeProjectDeleteModal()">취소</button>
+      <button type="button" class="btn danger" id="projectDeleteModalConfirm" onclick="confirmProjectDeleteFromModal()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<div id="restorePreviewModal" class="restore-modal-backdrop" onclick="if(event.target===this)closeRestorePreview()">
+  <div class="restore-modal" role="dialog" aria-modal="true" aria-labelledby="restorePreviewTitle">
+    <div class="restore-modal-head"><b id="restorePreviewTitle">복원 확인</b><button type="button" class="restore-modal-close" onclick="closeRestorePreview()">×</button></div>
+    <div class="restore-modal-body">
+      <div id="restorePreviewSummary" class="restore-summary"></div>
+      <div id="restoreTargetWrap" class="restore-target" style="display:none"><label>복원할 프로젝트</label><select id="restoreTargetProject"></select></div>
+      <div id="restorePreviewWarning" class="restore-warning"></div>
+      <div id="restoreProgress" class="restore-progress">복원 중입니다. 창을 닫지 마세요.</div>
+    </div>
+    <div class="restore-modal-actions"><button type="button" class="btn secondary" onclick="closeRestorePreview()">취소</button><button type="button" id="restoreApplyBtn" class="btn primary" onclick="applyPendingRestore()">복원 실행</button></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+
+/* ============================================================
+   기본 유틸 / 화면 전환
+   Supabase 연결이 실패해도 화면 이동만은 항상 되도록
+   맨 위에서 먼저 정의합니다.
+   ============================================================ */
+const $=id=>document.getElementById(id);
+let currentNo=null;
+let issuesCache=[];
+let modelsCache=[]; // [{name, project_name}]
+let projectGroupsCache=[]; // 상위 프로젝트: 유니온 / SK쉴더스 / NEC 등
+let hierarchySchemaReady=true;
+let hierarchySchemaMessage='';
+let projectGroupEditOriginal='';
+const issueProjectOpenState={};
+let pendingProjectGroupDelete='';
+let modelEditOriginal='';
+let modelEditProject='';
+let pendingModelDelete='';
+// v47: 서버 캐시 - 대시보드 집계와 Storage 사용량을 매 접속마다 다시 계산하지 않습니다.
+const APP_CACHE_TABLE='qa_app_cache';
+let dashboardCacheData=null;
+let storageCacheData=null;
+let dashboardCacheDirty=false;
+let dashboardCacheWriteTimer=null;
+const DEFAULT_PROJECT_GROUPS=['유니온','SK쉴더스','NEC'];
+function getData(){ return issuesCache; }
+
+function now(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')
+}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function statusBadge(s){
+  const c={'Open':'status-open','Reopen':'status-reopen','Resolved':'status-resolved','Analyzing':'status-analyzing','Monitoring':'status-monitoring','Close':'status-close'}[s]||'status-open';
+  return `<span class="badge ${c}">${esc(s)}</span>`
+}
+function severityBadge(s){
+  const c={'Critical':'sev-critical','Major':'sev-major','Average':'sev-average','Minor':'sev-minor'}[s]||'sev-average';
+  return `<span class="badge ${c}">${esc(s)}</span>`
+}
+
+function renderIssueSidebarTree(){
+  const wrap=$('issueNavTree');
+  if(!wrap) return;
+  // 전체 이슈 목록 아래 Project는 항상 펼쳐서 표시합니다.
+  // 화면에는 DB에 실제 존재하는 Project만 표시하므로 삭제 즉시 함께 사라집니다.
+  wrap.classList.add('open');
+  const projects=allProjectNames();
+  wrap.innerHTML=projects.map(project=>{
+    const models=modelsForProject(project);
+    const hasModels=models.length>0;
+    const opened=hasModels && !!issueProjectOpenState[project];
+    return `<div class="issue-nav-project">
+      <div class="issue-nav-project-row">
+        <button type="button" class="project-link" onclick="goToProjectIssues('${jsAttrEsc(project)}')">${esc(project)}</button>
+        ${hasModels?`<button type="button" class="model-toggle" onclick="toggleIssueProjectModels(event,'${jsAttrEsc(project)}')" title="Model ${opened?'접기':'펼치기'}">${opened?'▴':'▾'}</button>`:''}
+      </div>
+      ${hasModels?`<div class="issue-nav-models ${opened?'open':''}">${models.map(model=>`<button type="button" class="issue-nav-model" onclick="goToModelIssues('${jsAttrEsc(model)}',false)">${esc(model)}</button>`).join('')}</div>`:''}
+    </div>`;
+  }).join('');
+}
+function toggleIssueProjectModels(event,project){
+  event?.stopPropagation();
+  issueProjectOpenState[project]=!issueProjectOpenState[project];
+  renderIssueSidebarTree();
+}
+
+function showView(id){
+  const previousView=document.querySelector('.view.active')?.id||'';
+  if(previousView==='projects' && id!=='projects') setProjectMessage('');
+  if(id==='projects' && previousView!=='projects') setProjectMessage('');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  $(id).classList.add('active');
+  document.querySelectorAll('.nav button[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===id));
+  if(id==='dashboard')renderDashboard();
+  if(id==='issues')renderIssues();
+  if(id==='projects')renderProjectManager();
+  if(id==='create') refreshIssueModelInputs();
+}
+document.querySelectorAll('.nav button[data-view]').forEach(b=>b.onclick=()=>{
+  if(b.dataset.view==='issues') resetIssueFilters();
+  showView(b.dataset.view);
+});
+
+/* ---------- 프로젝트 / 모델별 이슈 목록 이동 ---------- */
+
+function resetIssueFilters(){
+  if($('f_q')) $('f_q').value='';
+  if($('f_group')) $('f_group').value='';
+  if($('f_model')) $('f_model').value='';
+  if($('f_project')) $('f_project').value='';
+  if($('f_status')) $('f_status').value='';
+  if($('f_severity')) $('f_severity').value='';
+  if($('f_assignee')) $('f_assignee').value='';
+}
+
+function goDashboardHome(){
+  resetIssueFilters();
+  showView('dashboard');
+}
+
+function openDashboardSummary(status){
+  // 상단 요약 카드는 항상 전체 모델 기준 목록으로 이동합니다.
+  refreshProjectGroupFilter();
+  if($('f_q')) $('f_q').value='';
+  if($('f_group')) $('f_group').value='';
+  refreshModelFilter();
+  if($('f_model')) $('f_model').value='';
+  refreshCategoryFilter();
+  if($('f_project')) $('f_project').value='';
+  if($('f_status')) $('f_status').value=status||'';
+  if($('f_severity')) $('f_severity').value='';
+  if($('f_assignee')) $('f_assignee').value='';
+  showView('issues');
+}
+
+function openDashboardModel(model){
+  // 모델명 클릭은 Status와 관계없이 항상 해당 모델의 전체 Issue 목록으로 이동
+  goToModelIssues(model,false);
+}
+
+function openDashboardStatus(model,category,status){
+  const matched=getData().filter(i=>{
+    const m=(i.model && String(i.model).trim())?String(i.model).trim():'미지정';
+    const c=(i.project && String(i.project).trim())?String(i.project).trim():'Etc';
+    return m===model && c===category && i.status===status;
+  });
+
+  if(matched.length===0) return;
+
+  // 해당 Status가 1건이면 바로 이슈 상세로 이동
+  if(matched.length===1){
+    openDetail(matched[0].no);
+    return;
+  }
+
+  // 2건 이상이면 모델 + Catagory + Status로 필터링된 목록 출력
+  refreshProjectGroupFilter();
+  if($('f_q')) $('f_q').value='';
+  if($('f_group')) $('f_group').value=modelProjectName(model)||'';
+  refreshModelFilter();
+  if($('f_model')) $('f_model').value=model;
+  refreshCategoryFilter();
+  if($('f_project')) $('f_project').value=category;
+  if($('f_status')) $('f_status').value=status;
+  if($('f_severity')) $('f_severity').value='';
+  if($('f_assignee')) $('f_assignee').value='';
+  showView('issues');
+}
+
+function openCreateForCurrentModel(){
+  const selectedModel=$('f_model')?.value || '';
+  const selectedGroup=$('f_group')?.value || modelProjectName(selectedModel) || '';
+  showView('create');
+  refreshIssueModelInputs();
+  if(selectedGroup && $('i_group')) $('i_group').value=selectedGroup;
+  refreshIssueModelForPrefix('i');
+  if(selectedModel && $('i_model')) $('i_model').value=selectedModel;
+}
+
+function goToProjectIssues(projectName){
+  refreshProjectGroupFilter();
+  if($('f_q')) $('f_q').value='';
+  if($('f_group')) $('f_group').value=projectName||'';
+  refreshModelFilter();
+  if($('f_model')) $('f_model').value='';
+  refreshCategoryFilter();
+  if($('f_project')) $('f_project').value='';
+  if($('f_status')) $('f_status').value='';
+  if($('f_severity')) $('f_severity').value='';
+  if($('f_assignee')) $('f_assignee').value='';
+  showView('issues');
+}
+
+function goToModelIssues(model,forceOpenIfMultiple){
+  refreshProjectGroupFilter();
+  if($('f_q')) $('f_q').value='';
+  if($('f_group')) $('f_group').value=modelProjectName(model)||'';
+  refreshModelFilter();
+  if($('f_model')) $('f_model').value=model;
+  refreshCategoryFilter();
+  if($('f_project')) $('f_project').value='';
+  if($('f_severity')) $('f_severity').value='';
+  if($('f_assignee')) $('f_assignee').value='';
+
+  let statusValue='';
+  if(forceOpenIfMultiple){
+    const openCount=getData().filter(i=>{
+      const m=(i.model && String(i.model).trim())?String(i.model).trim():'미지정';
+      return m===model && i.status==='Open';
+    }).length;
+    if(openCount>=2) statusValue='Open';
+  }
+  if($('f_status')) $('f_status').value=statusValue;
+  showView('issues');
+}
+
+function jsAttrEsc(s){
+  return String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+}
+
+/* 화면에 에러를 바로 보여주는 진단용 배너 */
+function showFatalError(msg){
+  console.error(msg);
+  const badge=$('connStatus');
+  if(badge){ badge.textContent='오류: '+msg; badge.style.background='#fee2e2'; badge.style.color='#b91c1c'; badge.style.cursor='pointer'; badge.title='클릭하면 전체 오류 메시지를 볼 수 있습니다'; badge.onclick=()=>alert(msg); }
+}
+window.addEventListener('error',e=>showFatalError(e.message));
+window.addEventListener('unhandledrejection',e=>showFatalError(e.reason?.message||String(e.reason)));
+
+/* ============================================================
+   Supabase 설정 (필수)
+   ------------------------------------------------------------
+   1) https://supabase.com 에서 무료 프로젝트 생성
+   2) SQL Editor에서 아래 SQL 실행 (issues 테이블 + 공개 정책)
+
+      create table issues (
+        no text primary key,
+        project text, title text, status text, severity text,
+        assignee text, reporter text, model text, version text,
+        steps text, expected text, result text, rate text, comments text,
+        created text, submitted_date text, closed_date text, closed_version text, updated text
+      );
+      alter table issues enable row level security;
+      create policy "public select" on issues for select using (true);
+      create policy "public insert" on issues for insert with check (true);
+      create policy "public update" on issues for update using (true);
+      create policy "public delete" on issues for delete using (true);
+
+   3) Storage 메뉴 > New bucket > 이름 "attachments", Public bucket 체크
+   4) Project Settings > API 에서 Project URL / anon public key를 아래에 입력
+      (anon key는 RLS 정책으로 보호되는 공개용 키이므로 그대로 코드에 넣어도 됩니다)
+
+   [추가] 프로젝트 > Model 계층 구조 (v29)
+   ------------------------------------------------------------
+   기존 models 테이블을 사용 중이라면 SQL Editor에서 아래를 한 번 실행하세요.
+
+      create table if not exists public.issue_projects (
+        name text primary key
+      );
+      alter table public.issue_projects enable row level security;
+      grant select, insert, update, delete on table public.issue_projects to anon, authenticated;
+      drop policy if exists "public select" on public.issue_projects;
+      drop policy if exists "public insert" on public.issue_projects;
+      drop policy if exists "public update" on public.issue_projects;
+      drop policy if exists "public delete" on public.issue_projects;
+      create policy "public select" on public.issue_projects for select to anon, authenticated using (true);
+      create policy "public insert" on public.issue_projects for insert to anon, authenticated with check (true);
+      create policy "public update" on public.issue_projects for update to anon, authenticated using (true) with check (true);
+      create policy "public delete" on public.issue_projects for delete to anon, authenticated using (true);
+
+      create table if not exists public.models (
+        name text primary key
+      );
+      alter table public.models add column if not exists project_name text;
+      alter table public.models enable row level security;
+      grant select, insert, update, delete on table public.models to anon, authenticated;
+      drop policy if exists "public select" on public.models;
+      drop policy if exists "public insert" on public.models;
+      drop policy if exists "public update" on public.models;
+      drop policy if exists "public delete" on public.models;
+      create policy "public select" on public.models for select to anon, authenticated using (true);
+      create policy "public insert" on public.models for insert to anon, authenticated with check (true);
+      create policy "public update" on public.models for update to anon, authenticated using (true) with check (true);
+      create policy "public delete" on public.models for delete to anon, authenticated using (true);
+
+      insert into public.issue_projects(name) values
+        ('SK쉴더스'),('자체제품'),('NEC')
+      on conflict (name) do nothing;
+
+   (선택) 여러 사람이 동시에 볼 때 실시간 반영을 원하면
+   Database > Replication에서 issue_projects, models 테이블도 Realtime을 켜주세요.
+   ============================================================ */
+const SUPABASE_URL = 'https://mjxwbcmofjaznupvfpjf.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_aIPu7MrF1Yl-snPUkTxEPQ_Rw54qF4S';
+const ATTACH_BUCKET = 'attachments';
+
+let sb = null;
+try{
+  if(!SUPABASE_URL.includes('YOUR-PROJECT') && window.supabase){
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } else if(!window.supabase){
+    showFatalError('Supabase 라이브러리를 불러오지 못했습니다 (네트워크/차단 문제일 수 있음)');
+  }
+}catch(e){ showFatalError('Supabase 초기화 실패: '+e.message); }
+function isConfigured(){ return !!sb; }
+
+/* ---------- 첨부파일: Supabase Storage ---------- */
+
+function sanitizeFileName(name){
+  const dot=name.lastIndexOf('.');
+  const base=dot>0?name.slice(0,dot):name;
+  const ext=dot>0?name.slice(dot):'';
+  const safeBase=base.replace(/[^a-zA-Z0-9._-]+/g,'_').replace(/^_+|_+$/g,'')||'file';
+  const safeExt=ext.replace(/[^a-zA-Z0-9.]+/g,'');
+  return safeBase+safeExt;
+}
+
+async function saveAttachments(issueNo,fileList){
+  if(!fileList || !fileList.length) return;
+  let addedBytes=0, addedFiles=0;
+  for(const file of [...fileList]){
+    const path=`${issueNo}/${Date.now()}_${sanitizeFileName(file.name)}`;
+    const {error}=await sb.storage.from(ATTACH_BUCKET).upload(path,file,{upsert:true,metadata:{originalName:file.name}});
+    if(error) alert('첨부파일 업로드 실패('+file.name+'): '+error.message);
+    else { addedBytes += Number(file.size||0); addedFiles++; }
+  }
+  if(addedBytes || addedFiles) await adjustStorageUsageCache(addedBytes,addedFiles);
+}
+
+async function getAttachments(issueNo){
+  if(!isConfigured()) return [];
+  const {data,error}=await sb.storage.from(ATTACH_BUCKET).list(issueNo,{limit:200});
+  if(error || !data) return [];
+  return data.filter(f=>f.id).map(f=>({
+    id:`${issueNo}/${f.name}`,
+    name:f.metadata?.originalName || f.name,
+    size:f.metadata?.size||0,
+    type:f.metadata?.mimetype||''
+  }));
+}
+
+async function deleteAttachment(path){
+  const parts=String(path||'').split('/');
+  const issueNo=parts.shift()||'';
+  const fileName=parts.join('/');
+  let size=0;
+  if(issueNo && fileName){
+    const rows=await getAttachments(issueNo);
+    size=Number(rows.find(r=>r.id===path)?.size||0);
+  }
+  const {error}=await sb.storage.from(ATTACH_BUCKET).remove([path]);
+  if(error) alert('첨부파일 삭제 실패: '+error.message);
+  else await adjustStorageUsageCache(-size,-1);
+}
+
+async function deleteIssueAttachments(issueNo){
+  const rows=await getAttachments(issueNo);
+  if(rows.length){
+    const {error}=await sb.storage.from(ATTACH_BUCKET).remove(rows.map(r=>r.id));
+    if(!error) await adjustStorageUsageCache(-rows.reduce((n,r)=>n+Number(r.size||0),0),-rows.length);
+  }
+}
+
+function humanSize(n){
+  if(n<1024) return n+' B';
+  if(n<1024*1024) return (n/1024).toFixed(1)+' KB';
+  return (n/1024/1024).toFixed(1)+' MB';
+}
+
+async function downloadAttachmentById(path,name){
+  const {data,error}=await sb.storage.from(ATTACH_BUCKET).download(path);
+  if(error||!data){ alert('다운로드 실패: '+(error?.message||'')); return; }
+  const url=URL.createObjectURL(data);
+  const a=document.createElement('a');
+  a.href=url;a.download=name||path.split('/').slice(1).join('/');a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+async function renderDetailAttachments(issueNo){
+  const rows=await getAttachments(issueNo);
+  $('d_files').innerHTML=rows.length?rows.map(r=>`
+    <div class="attach-item">
+      <span class="attach-name">${esc(r.name)} <span style="color:#94a3b8">(${humanSize(r.size)})</span></span>
+      <button class="btn secondary" onclick="downloadAttachmentById('${r.id.replace(/'/g,"\\'")}','${r.name.replace(/'/g,"\\'")}')">다운로드</button>
+    </div>`).join(''):'<div style="font-size:12px;color:#64748b">첨부파일이 없습니다.</div>';
+}
+
+async function renderEditAttachments(issueNo){
+  const rows=await getAttachments(issueNo);
+  $('e_existing_files').innerHTML=rows.length?rows.map(r=>`
+    <div class="attach-item">
+      <span class="attach-name">${esc(r.name)} <span style="color:#94a3b8">(${humanSize(r.size)})</span></span>
+      <button class="btn danger" type="button" onclick="removeAttachmentFromEdit('${r.id.replace(/'/g,"\\'")}')">삭제</button>
+    </div>`).join(''):'<div style="font-size:12px;color:#64748b">첨부파일이 없습니다.</div>';
+}
+
+async function removeAttachmentFromEdit(path){
+  if(!confirm('이 첨부파일을 삭제할까요?')) return;
+  await deleteAttachment(path);
+  await renderEditAttachments(currentNo);
+}
+
+
+/* ---------- 서버 캐시 / Supabase Storage 사용량 ---------- */
+const STORAGE_LIMIT_BYTES = 1024 * 1024 * 1024; // 1GB 표시 기준
+
+function setStorageBadge(stats,stale=false){
+  const badge=$('storageStatus');
+  if(!badge) return;
+  const totalBytes=Math.max(0,Number(stats?.bytes||0));
+  const files=Math.max(0,Number(stats?.files||0));
+  const usedMB=totalBytes/(1024*1024);
+  const percent=(totalBytes/STORAGE_LIMIT_BYTES)*100;
+  const usedText=usedMB>=100 ? Math.round(usedMB)+'MB' : usedMB.toFixed(1)+'MB';
+  badge.textContent=`Storage ${usedText} / 1GB (${Math.min(100,Math.round(percent))}%)`;
+  badge.title=`서버에 저장된 사용량 · ${files.toLocaleString()}개 파일 · ${totalBytes.toLocaleString()} bytes${stale?' · 실제 Storage와 차이가 있을 수 있습니다.':''}`;
+  badge.classList.toggle('warn',percent>=80);
+}
+
+async function readAppCache(key){
+  if(!isConfigured()) return null;
+  try{
+    const {data,error}=await sb.from(APP_CACHE_TABLE).select('value,updated_at').eq('key',key).maybeSingle();
+    if(error) throw error;
+    return data ? {value:data.value||{},updated_at:data.updated_at||''} : null;
+  }catch(e){
+    console.warn('서버 캐시 조회 실패('+key+'):',e?.message||e);
+    return null;
+  }
+}
+
+async function writeAppCache(key,value){
+  if(!isConfigured()) return false;
+  try{
+    const {error}=await sb.from(APP_CACHE_TABLE).upsert({key,value,updated_at:new Date().toISOString()},{onConflict:'key'});
+    if(error) throw error;
+    return true;
+  }catch(e){
+    console.warn('서버 캐시 저장 실패('+key+'):',e?.message||e);
+    return false;
+  }
+}
+
+async function loadServerCaches(){
+  const [dash,storage]=await Promise.all([readAppCache('dashboard_stats'),readAppCache('storage_stats')]);
+  dashboardCacheData=dash?.value||null;
+  storageCacheData=storage?.value||null;
+  dashboardCacheDirty=!dashboardCacheData;
+  if(storageCacheData) setStorageBadge(storageCacheData);
+  else if($('storageStatus')) $('storageStatus').textContent='Storage 정보 준비 중...';
+  if(dashboardCacheData) renderDashboardFromCache(dashboardCacheData);
+}
+
+async function adjustStorageUsageCache(deltaBytes,deltaFiles){
+  deltaBytes=Number(deltaBytes||0); deltaFiles=Number(deltaFiles||0);
+  try{
+    // SQL의 원자적 RPC를 사용하므로 여러 사용자가 동시에 첨부해도 합계가 덮어써지지 않습니다.
+    const {data,error}=await sb.rpc('qa_adjust_storage_usage',{p_delta_bytes:Math.trunc(deltaBytes),p_delta_files:Math.trunc(deltaFiles)});
+    if(error) throw error;
+    const next=(data && typeof data==='object')?data:null;
+    if(next){storageCacheData=next;setStorageBadge(next);return;}
+  }catch(e){
+    console.warn('Storage 서버 캐시 증감 실패:',e?.message||e);
+  }
+  // SQL을 아직 적용하지 않은 환경에서도 현재 브라우저 표시는 유지합니다.
+  const cur=storageCacheData||{bytes:0,files:0};
+  storageCacheData={bytes:Math.max(0,Number(cur.bytes||0)+deltaBytes),files:Math.max(0,Number(cur.files||0)+deltaFiles)};
+  setStorageBadge(storageCacheData,true);
+}
+
+// 실제 Storage 전체를 훑는 작업은 접속 때마다 하지 않습니다.
+// 서버 캐시가 처음 없거나, 데이터 보정이 필요할 때만 명시적으로 실행합니다.
+async function calculateStorageUsage(){
+  if(!isConfigured()) return;
+  const badge=$('storageStatus');
+  if(!badge) return;
+  badge.textContent='Storage 실제 사용량 확인 중...';
+  badge.classList.remove('warn');
+  try{
+    let totalBytes=0,totalFiles=0;
+    async function walk(path=''){
+      let offset=0; const limit=100;
+      while(true){
+        const {data,error}=await sb.storage.from(ATTACH_BUCKET).list(path,{limit,offset,sortBy:{column:'name',order:'asc'}});
+        if(error) throw error;
+        const items=data||[];
+        for(const item of items){
+          if(item.name==='.emptyFolderPlaceholder') continue;
+          if(item.id){totalBytes+=Number(item.metadata?.size||0);totalFiles++;}
+          else if(item.name) await walk(path?`${path}/${item.name}`:item.name);
+        }
+        if(items.length<limit) break; offset+=limit;
+      }
+    }
+    await walk('');
+    storageCacheData={bytes:totalBytes,files:totalFiles,last_reconciled:new Date().toISOString()};
+    setStorageBadge(storageCacheData);
+    const ok=await writeAppCache('storage_stats',storageCacheData);
+    if(!ok) setStorageBadge(storageCacheData,true);
+  }catch(e){
+    console.error('Storage usage error',e);
+    if(storageCacheData) setStorageBadge(storageCacheData,true);
+    else {badge.textContent='Storage 확인 실패';badge.classList.add('warn');badge.title=e.message||String(e);}
+  }
+}
+
+
+/* ---------- Comment / Activity ---------- */
+
+const ACTIVITY_MARKER='@@QA_ACTIVITY@@';
+
+function formatActivityTime(value){
+  if(!value) return '-';
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime())) return String(value);
+
+  return d.getFullYear()+'.'+
+    String(d.getMonth()+1).padStart(2,'0')+'.'+
+    String(d.getDate()).padStart(2,'0')+' '+
+    String(d.getHours()).padStart(2,'0')+':'+
+    String(d.getMinutes()).padStart(2,'0');
+}
+
+function splitIssueComments(raw){
+  const text=String(raw||'');
+  const parts=text.split('\n'+ACTIVITY_MARKER);
+  const base=parts.shift()||'';
+  const activities=[];
+
+  parts.forEach(part=>{
+    const line=part.replace(/^\n?/,'').split('\n')[0];
+    try{
+      const row=JSON.parse(line);
+      if(row && typeof row==='object') activities.push(row);
+    }catch(e){
+      console.warn('Activity 파싱 실패',e);
+    }
+  });
+
+  return {base,activities};
+}
+
+function appendActivity(raw,row){
+  const text=String(raw||'').replace(/\s+$/,'');
+  return text+'\n'+ACTIVITY_MARKER+JSON.stringify(row);
+}
+
+async function loadActivities(issueNo){
+  const issue=getData().find(x=>x.no===issueNo);
+  if(!issue) return [];
+  return splitIssueComments(issue.comments).activities;
+}
+
+let editingActivityIndex=null;
+
+async function renderActivities(issueNo){
+  const target=$('activityList');
+  if(!target) return;
+
+  const rows=await loadActivities(issueNo);
+
+  target.innerHTML=rows.length ? rows.map((row,index)=>{
+    const hasStatus=row.old_status && row.new_status && row.old_status!==row.new_status;
+
+    return `<div class="activity-item">
+      <div class="activity-head">
+        <div class="activity-author">${esc(row.team||'-')} - ${esc(row.author||'-')}</div>
+        <div class="activity-head-right">
+          <div class="activity-time">${esc(formatActivityTime(row.created_at))}</div>
+          <div class="activity-edit-actions">
+            <button type="button" class="activity-mini-btn" onclick="editActivity(${index})">수정</button>
+            <button type="button" class="activity-mini-btn delete" onclick="deleteActivity(${index})">삭제</button>
+          </div>
+        </div>
+      </div>
+
+      ${hasStatus ? `<div class="activity-status-change">
+        <span>Status</span>
+        ${statusBadge(row.old_status)}
+        <span>→</span>
+        ${statusBadge(row.new_status)}
+      </div>` : ''}
+
+      ${editingActivityIndex===index ? `<div class="activity-inline-edit">
+        <textarea id="activity_edit_body_${index}">${esc(row.body||'')}</textarea>
+        <div class="activity-inline-edit-actions">
+          <button type="button" class="activity-mini-btn" onclick="cancelActivityEdit()">취소</button>
+          <button type="button" class="activity-mini-btn save" onclick="saveActivityEdit(${index})">저장</button>
+        </div>
+      </div>` : (row.body ? `<div class="activity-body">${esc(row.body)}</div>` : '')}
+    </div>`;
+  }).join('') : '<div class="activity-empty">등록된 Comment가 없습니다.</div>';
+
+  target.scrollTop=target.scrollHeight;
+}
+
+function serializeIssueComments(base,activities){
+  let text=String(base||'').replace(/\s+$/,'');
+  activities.forEach(row=>{
+    text+='\n'+ACTIVITY_MARKER+JSON.stringify(row);
+  });
+  return text;
+}
+
+async function editActivity(index){
+  if(index===undefined || index===null) return;
+  editingActivityIndex=index;
+  await renderActivities(currentNo);
+  const ta=$('activity_edit_body_'+index);
+  if(ta){ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);}
+}
+
+async function cancelActivityEdit(){
+  editingActivityIndex=null;
+  await renderActivities(currentNo);
+}
+
+async function saveActivityEdit(index){
+  if(!currentNo || !isConfigured()) return;
+  const issue=getData().find(x=>x.no===currentNo);
+  if(!issue) return;
+  const parsed=splitIssueComments(issue.comments);
+  const row=parsed.activities[index];
+  if(!row) return;
+
+  const editor=$('activity_edit_body_'+index);
+  if(!editor) return;
+  const body=editor.value.trim();
+  if(!body && !(row.old_status && row.new_status && row.old_status!==row.new_status)){
+    alert('Comment 내용을 입력해주세요.');
+    return;
+  }
+
+  parsed.activities[index]={...row,body:body||null,edited_at:new Date().toISOString()};
+  try{
+    await updateIssueRow(currentNo,{comments:serializeIssueComments(parsed.base,parsed.activities),updated:now()});
+    editingActivityIndex=null;
+    await loadIssues();
+    renderAll();
+    openDetail(currentNo);
+  }catch(e){
+    alert('Comment 수정 실패: '+(e?.message||e));
+  }
+}
+
+async function deleteActivity(index){
+  if(!currentNo || !isConfigured()) return;
+  const issue=getData().find(x=>x.no===currentNo);
+  if(!issue) return;
+  const parsed=splitIssueComments(issue.comments);
+  const row=parsed.activities[index];
+  if(!row) return;
+  if(!confirm('이 Comment를 삭제할까요?')) return;
+
+  parsed.activities.splice(index,1);
+  try{
+    await updateIssueRow(currentNo,{comments:serializeIssueComments(parsed.base,parsed.activities),updated:now()});
+    await loadIssues();
+    renderAll();
+    openDetail(currentNo);
+  }catch(e){
+    alert('Comment 삭제 실패: '+(e?.message||e));
+  }
+}
+
+const QA_VERIFY_MEMBERS=['우현식','박상미','김연훈','황대연','김현진'];
+
+function buildActivityAuthorSelect(){
+  const sel=document.createElement('select');
+  sel.id='activity_author';
+  QA_VERIFY_MEMBERS.forEach(name=>{
+    const opt=document.createElement('option');
+    opt.value=name;opt.textContent=name;
+    sel.appendChild(opt);
+  });
+  sel.value='우현식';
+  return sel;
+}
+
+function buildActivityAuthorInput(){
+  const inp=document.createElement('input');
+  inp.id='activity_author';
+  inp.placeholder='개발팀 작성자 이름 직접 입력';
+  inp.value='';
+  return inp;
+}
+
+function syncActivityAuthorList(){
+  const team=$('activity_team')?.value;
+  const current=$('activity_author');
+  if(!current) return;
+
+  const wantsSelect=team==='개발검증팀';
+  const isSelect=current.tagName==='SELECT';
+
+  if(wantsSelect===isSelect){
+    current.value=wantsSelect?'우현식':'';
+    return;
+  }
+
+  const replacement=wantsSelect?buildActivityAuthorSelect():buildActivityAuthorInput();
+  current.replaceWith(replacement);
+}
+
+function syncActivityClosedVersion(){
+  const statusEl=$('activity_status');
+  const versionEl=$('activity_closed_version');
+  if(!statusEl || !versionEl) return;
+
+  const isClose=statusEl.value==='Close';
+  versionEl.classList.toggle('show',isClose);
+
+  if(!isClose) versionEl.value='';
+}
+
+async function submitActivity(){
+  if(!currentNo || !isConfigured()) return;
+
+  const issue=getData().find(x=>x.no===currentNo);
+  if(!issue) return;
+
+  const team=$('activity_team').value.trim()||'-';
+  const author=$('activity_author').value.trim()||'-';
+  const body=$('activity_comment').value.trim();
+  const oldStatus=issue.status;
+  const selectedStatus=$('activity_status').value;
+  const newStatus=selectedStatus || oldStatus;
+  const statusChanged=oldStatus!==newStatus;
+
+  if(!body && !statusChanged){
+    alert('Comment를 입력하거나 Status를 변경해주세요.');
+    return;
+  }
+
+  let closedVersion=issue.closed_version||'';
+  let closedDate=issue.closed_date||'';
+
+  if(newStatus==='Close'){
+    if(statusChanged) closedDate=now();
+    closedVersion=$('activity_closed_version').value.trim() || closedVersion;
+  }else{
+    if(oldStatus==='Close' && statusChanged) closedDate='';
+    closedVersion='';
+  }
+
+  const btn=$('activity_submit_btn');
+  btn.disabled=true;
+  btn.textContent='등록 중...';
+
+  try{
+    const activity={
+      team,
+      author,
+      body:body||null,
+      old_status:oldStatus,
+      new_status:newStatus,
+      created_at:new Date().toISOString()
+    };
+
+    const patch={
+      comments:appendActivity(issue.comments,activity),
+      updated:now()
+    };
+
+    if(statusChanged){
+      patch.status=newStatus;
+      patch.closed_date=closedDate;
+      patch.closed_version=closedVersion;
+    }
+
+    await updateIssueRow(currentNo,patch);
+    await loadIssues();
+
+    $('activity_comment').value='';
+    $('activity_closed_version').value='';
+
+    const refreshed=getData().find(x=>x.no===currentNo);
+    if(refreshed){
+      currentNo=refreshed.no;
+      $('activity_status').value=refreshed.status==='Open' ? '' : refreshed.status;
+    }
+
+    syncActivityClosedVersion();
+    renderAll();
+    openDetail(currentNo);
+
+  }catch(e){
+    alert('Comment 등록 실패: '+(e?.message||e));
+  }finally{
+    btn.disabled=false;
+    btn.textContent='Comment 등록';
+  }
+}
+
+/* ---------- 프로젝트 > Model 계층: Supabase Postgres ---------- */
+
+function markHierarchySchemaProblem(message){
+  hierarchySchemaReady=false;
+  hierarchySchemaMessage=String(message||'프로젝트 계층 DB 설정이 필요합니다.');
+}
+
+async function loadProjectGroups(){
+  if(!isConfigured()) return;
+  try{
+    const {data,error}=await sb.from('issue_projects').select('name').order('name',{ascending:true});
+    if(error) throw error;
+    projectGroupsCache=(data||[]).map(r=>{const n=String(r.name||'').trim();return n==='자체제품'?'유니온':n;}).filter(Boolean);
+  }catch(e){
+    projectGroupsCache=[];
+    markHierarchySchemaProblem('issue_projects 테이블이 없거나 권한이 없습니다. v29 프로젝트 계층 SQL을 한 번 실행해주세요.');
+    console.warn('상위 프로젝트 목록 조회 실패:',e?.message||e);
+  }
+}
+
+async function loadModels(){
+  if(!isConfigured()) return;
+  try{
+    const {data,error}=await sb.from('models').select('name,project_name').order('name',{ascending:true});
+    if(error) throw error;
+    modelsCache=(data||[]).map(r=>({
+      name:String(r.name||'').trim(),
+      project_name:(String(r.project_name||'').trim()==='자체제품'?'유니온':String(r.project_name||'').trim())
+    })).filter(r=>r.name);
+  }catch(e){
+    console.warn('Model 계층 조회 실패. 기존 models 구조로 재시도:',e?.message||e);
+    markHierarchySchemaProblem('models.project_name 컬럼이 없거나 권한이 없습니다. v29 프로젝트 계층 SQL을 한 번 실행해주세요.');
+    try{
+      const {data,error}=await sb.from('models').select('name').order('name',{ascending:true});
+      if(error) throw error;
+      modelsCache=(data||[]).map(r=>({name:String(r.name||'').trim(),project_name:''})).filter(r=>r.name);
+    }catch(inner){
+      console.warn('모델 목록 조회 실패:',inner?.message||inner);
+      modelsCache=[];
+    }
+  }
+}
+
+async function ensureDefaultProjectGroups(){
+  if(!isConfigured() || !hierarchySchemaReady) return;
+  try{
+    // 이전 버전의 "자체제품" 명칭이 있으면 "유니온"으로 자동 정리
+    const rawProjects=projectGroupsCache.slice();
+    if(rawProjects.includes('유니온')){
+      try{await sb.from('models').update({project_name:'유니온'}).eq('project_name','자체제품')}catch(_){ }
+      try{await sb.from('issue_projects').delete().eq('name','자체제품')}catch(_){ }
+    }else{
+      try{
+        const {error:unionErr}=await sb.from('issue_projects').insert({name:'유니온'});
+        if(unionErr && !String(unionErr.message||'').toLowerCase().includes('duplicate')) throw unionErr;
+        await sb.from('models').update({project_name:'유니온'}).eq('project_name','자체제품');
+        await sb.from('issue_projects').delete().eq('name','자체제품');
+      }catch(_){ }
+    }
+    // 완전히 비어 있는 최초 DB에서만 기본 프로젝트 3개를 생성합니다.
+    // 사용자가 프로젝트를 직접 삭제한 뒤에는 다음 실행 시 자동으로 되살리지 않습니다.
+    if(projectGroupsCache.length===0){
+      for(const name of DEFAULT_PROJECT_GROUPS){
+        const {error}=await sb.from('issue_projects').insert({name});
+        if(error && !String(error.message||'').toLowerCase().includes('duplicate')) throw error;
+      }
+    }
+    await loadProjectGroups();
+    await loadModels();
+  }catch(e){
+    console.warn('기본 프로젝트 생성 실패:',e?.message||e);
+  }
+}
+
+function modelRecord(name){
+  const key=String(name||'').trim();
+  return modelsCache.find(m=>m.name===key)||null;
+}
+function modelProjectName(name){
+  return modelRecord(name)?.project_name||'';
+}
+function projectNameCompare(a,b){
+  const ai=DEFAULT_PROJECT_GROUPS.indexOf(a), bi=DEFAULT_PROJECT_GROUPS.indexOf(b);
+  if(ai!==-1 || bi!==-1){if(ai===-1)return 1;if(bi===-1)return -1;return ai-bi;}
+  return String(a).localeCompare(String(b),'ko',{numeric:true,sensitivity:'base'});
+}
+function allProjectNames(){
+  const fromModels=modelsCache.map(m=>String(m.project_name||'').trim()).filter(Boolean);
+  const names=[...new Set([...projectGroupsCache,...fromModels])];
+  if(!names.length && !hierarchySchemaReady) names.push(...DEFAULT_PROJECT_GROUPS);
+  return [...new Set(names)].sort(projectNameCompare);
+}
+function allModelNames(){
+  const fromIssues=getData().map(i=>(i.model && String(i.model).trim()) ? String(i.model).trim() : '미지정');
+  const fromRegistry=modelsCache.map(m=>String(m.name||'').trim()).filter(Boolean);
+  return [...new Set([...fromIssues,...fromRegistry])].sort((a,b)=>a.localeCompare(b,'ko',{numeric:true,sensitivity:'base'}));
+}
+function modelsForProject(projectName){
+  const project=String(projectName||'').trim();
+  return allModelNames().filter(name=>name!=='미지정' && modelProjectName(name)===project);
+}
+function unassignedModels(){
+  return allModelNames().filter(name=>name!=='미지정' && !modelProjectName(name));
+}
+function projectIssueRows(projectName){
+  const names=new Set(modelsForProject(projectName));
+  return getData().filter(i=>names.has(String(i.model||'').trim()));
+}
+function projectStats(projectName){
+  const rows=projectIssueRows(projectName);
+  return {models:modelsForProject(projectName).length,total:rows.length,open:rows.filter(i=>i.status!=='Close').length};
+}
+
+function setProjectMessage(message,type='info'){
+  const el=$('projectMessage');
+  if(!el) return;
+  if(!message){el.className='project-message';el.textContent='';return;}
+  el.className='project-message show '+type;
+  el.textContent=message;
+}
+
+function openProjectManager(){
+  projectGroupEditOriginal='';
+  pendingProjectGroupDelete='';
+  modelEditOriginal='';
+  modelEditProject='';
+  pendingModelDelete='';
+  showView('projects');
+  cancelProjectGroupEdit(false);
+}
+
+function cancelProjectGroupEdit(clearMessage=true){
+  projectGroupEditOriginal='';
+  pendingProjectGroupDelete='';
+  if($('p_name')) $('p_name').value='';
+  if($('projectFormTitle')) $('projectFormTitle').textContent='프로젝트 등록';
+  if($('p_save')) $('p_save').textContent='프로젝트 등록';
+  if($('p_cancel')) $('p_cancel').style.display='none';
+  if(clearMessage) setProjectMessage('');
+  renderProjectManager();
+}
+
+function startProjectGroupEdit(name){
+  projectGroupEditOriginal=String(name||'').trim();
+  pendingProjectGroupDelete='';
+  if($('p_name')){$('p_name').value=projectGroupEditOriginal;$('p_name').focus();$('p_name').select();}
+  if($('projectFormTitle')) $('projectFormTitle').textContent='프로젝트 수정';
+  if($('p_save')) $('p_save').textContent='프로젝트 수정';
+  if($('p_cancel')) $('p_cancel').style.display='';
+  setProjectMessage('프로젝트명을 수정하면 해당 프로젝트에 포함된 Model의 소속도 함께 변경됩니다.','info');
+}
+
+async function saveProjectGroup(){
+  const name=String($('p_name')?.value||'').trim();
+  if(!name){setProjectMessage('프로젝트명을 입력해주세요.','error');return;}
+  if(!hierarchySchemaReady){setProjectMessage('먼저 v29 프로젝트 계층 SQL을 실행해주세요.','error');return;}
+  const btn=$('p_save'); if(btn) btn.disabled=true;
+  try{
+    if(!projectGroupEditOriginal){
+      if(allProjectNames().some(x=>x.toLowerCase()===name.toLowerCase())){
+        setProjectMessage('이미 등록된 프로젝트명입니다.','error');return;
+      }
+      const {error}=await sb.from('issue_projects').insert({name});
+      if(error) throw error;
+      await loadProjectGroups();
+      if($('p_name')) $('p_name').value='';
+      renderAll();
+      setProjectMessage(`"${name}" 프로젝트가 등록되었습니다.`,'success');
+      return;
+    }
+
+    const oldName=projectGroupEditOriginal;
+    if(name===oldName){setProjectMessage('변경된 프로젝트명이 없습니다.','info');return;}
+    if(allProjectNames().some(x=>x!==oldName && x.toLowerCase()===name.toLowerCase())){
+      setProjectMessage('이미 등록된 프로젝트명입니다.','error');return;
+    }
+    const {error:insertErr}=await sb.from('issue_projects').insert({name});
+    if(insertErr) throw insertErr;
+    const {error:modelErr}=await sb.from('models').update({project_name:name}).eq('project_name',oldName);
+    if(modelErr){
+      try{await sb.from('issue_projects').delete().eq('name',name)}catch(_){ }
+      throw new Error('Model 소속 변경 실패: '+modelErr.message);
+    }
+    const {error:deleteErr}=await sb.from('issue_projects').delete().eq('name',oldName);
+    if(deleteErr) throw deleteErr;
+    await loadProjectGroups(); await loadModels();
+    projectGroupEditOriginal='';
+    if($('p_name')) $('p_name').value='';
+    if($('projectFormTitle')) $('projectFormTitle').textContent='프로젝트 등록';
+    if($('p_save')) $('p_save').textContent='프로젝트 등록';
+    if($('p_cancel')) $('p_cancel').style.display='none';
+    renderAll();
+    setProjectMessage(`"${oldName}" → "${name}"으로 수정되었습니다.`,'success');
+  }catch(e){
+    setProjectMessage('프로젝트 저장 실패: '+(e?.message||e),'error');
+  }finally{ if(btn) btn.disabled=false; }
+}
+
+async function removeIssueAttachmentsForCascade(issueNo){
+  if(!isConfigured() || !issueNo) return;
+  const {data,error}=await sb.storage.from(ATTACH_BUCKET).list(issueNo,{limit:1000});
+  if(error) throw new Error(`첨부파일 조회 실패 (${issueNo}): ${error.message}`);
+  const files=(data||[]).filter(f=>f.id);
+  const paths=files.map(f=>`${issueNo}/${f.name}`);
+  if(paths.length){
+    const {error:removeError}=await sb.storage.from(ATTACH_BUCKET).remove(paths);
+    if(removeError) throw new Error(`첨부파일 삭제 실패 (${issueNo}): ${removeError.message}`);
+    await adjustStorageUsageCache(-files.reduce((n,f)=>n+Number(f.metadata?.size||0),0),-files.length);
+  }
+}
+
+// 프로젝트/Model 일괄 삭제에서는 Issue마다 Storage 캐시 RPC를 호출하지 않습니다.
+// 여러 Attachment 폴더를 제한된 동시성으로 정리하고 사용량은 마지막에 한 번만 차감합니다.
+async function removeManyIssueAttachmentsForCascade(issueNos){
+  const queue=[...new Set((issueNos||[]).map(x=>String(x||'').trim()).filter(Boolean))];
+  if(!isConfigured() || !queue.length) return {bytes:0,files:0};
+  let removedBytes=0, removedFiles=0, cursor=0;
+  const concurrency=Math.min(6,queue.length);
+  async function worker(){
+    while(true){
+      const idx=cursor++;
+      if(idx>=queue.length) return;
+      const issueNo=queue[idx];
+      const {data,error}=await sb.storage.from(ATTACH_BUCKET).list(issueNo,{limit:1000});
+      if(error) throw new Error(`첨부파일 조회 실패 (${issueNo}): ${error.message}`);
+      const files=(data||[]).filter(f=>f.id);
+      if(!files.length) continue;
+      const paths=files.map(f=>`${issueNo}/${f.name}`);
+      const {error:removeError}=await sb.storage.from(ATTACH_BUCKET).remove(paths);
+      if(removeError) throw new Error(`첨부파일 삭제 실패 (${issueNo}): ${removeError.message}`);
+      removedBytes+=files.reduce((n,f)=>n+Number(f.metadata?.size||0),0);
+      removedFiles+=files.length;
+    }
+  }
+  await Promise.all(Array.from({length:concurrency},()=>worker()));
+  if(removedBytes || removedFiles) await adjustStorageUsageCache(-removedBytes,-removedFiles);
+  return {bytes:removedBytes,files:removedFiles};
+}
+
+function requestProjectGroupDelete(name){
+  const models=modelsForProject(name);
+  const issues=getData().filter(i=>models.includes(String(i.model||'').trim()));
+  pendingProjectGroupDelete=name;
+  const modal=$('projectDeleteModal');
+  const message=$('projectDeleteModalMessage');
+  const confirmBtn=$('projectDeleteModalConfirm');
+  if(message){
+    message.innerHTML=issues.length || models.length
+      ? `<b>${esc(name)}</b> 프로젝트를 삭제하면 <b>Model ${models.length}개, Issue ${issues.length}건과 해당 Attachment가 모두 삭제됩니다.</b><br><br>잘못 복원한 데이터를 지우는 경우에만 전체 삭제를 진행해주세요.`
+      : `<b>${esc(name)}</b> 프로젝트를 정말 삭제할까요?`;
+  }
+  if(confirmBtn) confirmBtn.textContent=(issues.length||models.length)?'전체 삭제':'삭제';
+  if(modal) modal.classList.add('open');
+}
+function closeProjectDeleteModal(){
+  pendingProjectGroupDelete='';
+  $('projectDeleteModal')?.classList.remove('open');
+}
+async function confirmProjectDeleteFromModal(){
+  const name=pendingProjectGroupDelete;
+  if(!name) return;
+  const btn=$('projectDeleteModalConfirm');
+  if(btn){btn.disabled=true;btn.textContent='삭제 중...';}
+  try{
+    await confirmProjectGroupDelete(name);
+    $('projectDeleteModal')?.classList.remove('open');
+  }catch(_){
+    // 오류 메시지는 confirmProjectGroupDelete에서 프로젝트 관리 화면에 표시합니다.
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='삭제';}
+  }
+}
+function cancelProjectGroupDelete(){closeProjectDeleteModal();}
+async function confirmProjectGroupDelete(name){
+  try{
+    const models=modelsForProject(name);
+    const issues=getData().filter(i=>models.includes(String(i.model||'').trim()));
+    await removeManyIssueAttachmentsForCascade(issues.map(issue=>issue.no));
+    if(models.length){
+      const {error:issueError}=await sb.from('issues').delete().in('model',models);
+      if(issueError) throw new Error('Issue 삭제 실패: '+issueError.message);
+      const {error:modelError}=await sb.from('models').delete().eq('project_name',name);
+      if(modelError) throw new Error('Model 삭제 실패: '+modelError.message);
+    }
+    const {error}=await sb.from('issue_projects').delete().eq('name',name);
+    if(error) throw error;
+    pendingProjectGroupDelete='';
+    if(projectGroupEditOriginal===name) cancelProjectGroupEdit(false);
+    await loadProjectGroups(); await loadModels(); await loadIssues();
+    renderAll();
+    dashboardCacheDirty=true;
+    setProjectMessage(`"${name}" 프로젝트와 하위 데이터가 삭제되었습니다.`,'success');
+  }catch(e){
+    setProjectMessage('프로젝트 삭제 실패: '+(e?.message||e),'error');
+    throw e;
+  }
+}
+
+async function addModelToProject(projectName,inputId){
+  const name=String($(inputId)?.value||'').trim();
+  if(!name){setProjectMessage('Model명을 입력해 주세요.','error');return;}
+  if(!hierarchySchemaReady){setProjectMessage('먼저 v29 프로젝트 계층 SQL을 실행해주세요.','error');return;}
+  if(allModelNames().some(x=>x.toLowerCase()===name.toLowerCase())){
+    setProjectMessage('이미 등록되어 있거나 이슈에서 사용 중인 Model명입니다.','error');return;
+  }
+  try{
+    const {error}=await sb.from('models').insert({name,project_name:projectName});
+    if(error) throw error;
+    await loadModels();
+    if($(inputId)) $(inputId).value='';
+    renderAll();
+    setProjectMessage(`"${projectName}"에 "${name}" Model이 등록되었습니다.`,'success');
+  }catch(e){setProjectMessage('Model 등록 실패: '+(e?.message||e),'error');}
+}
+
+function startModelEdit(name){
+  modelEditOriginal=String(name||'').trim();
+  modelEditProject=modelProjectName(name)||'';
+  pendingModelDelete='';
+  setProjectMessage('');
+  renderProjectManager();
+  setTimeout(()=>{$('pm_model_name')?.focus();$('pm_model_name')?.select();},0);
+}
+function cancelModelEdit(){modelEditOriginal='';modelEditProject='';renderProjectManager();}
+
+async function saveModelEdit(){
+  const oldName=modelEditOriginal;
+  if(!oldName) return;
+  const newName=String($('pm_model_name')?.value||'').trim();
+  const newProject=String($('pm_model_project')?.value||'').trim();
+  if(!newName){setProjectMessage('Model명을 입력해 주세요.','error');return;}
+  if(!newProject){setProjectMessage('소속 프로젝트를 선택해주세요.','error');return;}
+  if(!hierarchySchemaReady){setProjectMessage('먼저 v29 프로젝트 계층 SQL을 실행해주세요.','error');return;}
+  if(newName!==oldName && allModelNames().some(x=>x.toLowerCase()===newName.toLowerCase())){
+    setProjectMessage('이미 등록되어 있거나 이슈에서 사용 중인 Model명입니다.','error');return;
+  }
+  try{
+    const rec=modelRecord(oldName);
+    if(newName===oldName){
+      if(rec){
+        const {error}=await sb.from('models').update({project_name:newProject}).eq('name',oldName);
+        if(error) throw error;
+      }else{
+        const {error}=await sb.from('models').insert({name:oldName,project_name:newProject});
+        if(error) throw error;
+      }
+    }else{
+      const {error:insertErr}=await sb.from('models').insert({name:newName,project_name:newProject});
+      if(insertErr) throw insertErr;
+      const {error:issueErr}=await sb.from('issues').update({model:newName,updated:now()}).eq('model',oldName);
+      if(issueErr){
+        try{await sb.from('models').delete().eq('name',newName)}catch(_){ }
+        throw new Error('기존 이슈의 Model명 변경 실패: '+issueErr.message);
+      }
+      if(rec){
+        const {error:deleteErr}=await sb.from('models').delete().eq('name',oldName);
+        if(deleteErr) console.warn('기존 Model 레코드 삭제 실패:',deleteErr.message);
+      }
+    }
+    await loadModels(); await loadIssues();
+    modelEditOriginal=''; modelEditProject='';
+    renderAll();
+    setProjectMessage(`Model 정보가 수정되었습니다.`,'success');
+  }catch(e){setProjectMessage('Model 수정 실패: '+(e?.message||e),'error');}
+}
+
+function requestModelDelete(name){
+  const count=getData().filter(i=>String(i.model||'').trim()===name).length;
+  const msg=count
+    ? `"${name}" Model을 삭제하면 Issue ${count}건과 해당 Attachment도 모두 삭제됩니다.\n\n잘못 복원한 데이터를 삭제하는 경우에만 진행해주세요.\n\n전체 삭제할까요?`
+    : `"${name}" Model을 삭제할까요?`;
+  if(confirm(msg)) confirmModelDelete(name);
+}
+async function confirmModelDelete(name){
+  try{
+    const issues=getData().filter(i=>String(i.model||'').trim()===name);
+    await removeManyIssueAttachmentsForCascade(issues.map(issue=>issue.no));
+    if(issues.length){
+      const {error:issueError}=await sb.from('issues').delete().eq('model',name);
+      if(issueError) throw new Error('Issue 삭제 실패: '+issueError.message);
+    }
+    const {error}=await sb.from('models').delete().eq('name',name);
+    if(error) throw error;
+    if(modelEditOriginal===name){modelEditOriginal='';modelEditProject='';}
+    await loadModels(); await loadIssues();
+    renderAll();
+    dashboardCacheDirty=true;
+    setProjectMessage(`"${name}" Model과 하위 데이터가 삭제되었습니다.`,'success');
+  }catch(e){alert('Model 삭제 실패: '+(e?.message||e));}
+}
+
+function modelRowHtml(name){
+  const rows=getData().filter(i=>String(i.model||'').trim()===name);
+  const open=rows.filter(i=>i.status!=='Close').length;
+  const editing=modelEditOriginal===name;
+  if(editing){
+    const projects=allProjectNames();
+    return `<div class="project-model-edit">
+      <div class="project-model-edit-grid">
+        <input id="pm_model_name" value="${esc(name)}" aria-label="Model명">
+        <select id="pm_model_project" aria-label="소속 프로젝트">${projects.map(p=>`<option value="${esc(p)}" ${p===(modelEditProject||modelProjectName(name))?'selected':''}>${esc(p)}</option>`).join('')}</select>
+      </div>
+      <div class="project-model-edit-actions"><button type="button" class="btn secondary" onclick="cancelModelEdit()">취소</button><button type="button" class="btn primary" onclick="saveModelEdit()">저장</button></div>
+    </div>`;
+  }
+  return `<div class="project-model-row">
+    <div class="project-model-main">
+      <button type="button" class="project-model-name" onclick="goToModelIssues('${jsAttrEsc(name)}',false)">${esc(name)}</button>
+      <div class="project-model-meta">전체 ${rows.length} · Open Issue ${open}</div>
+    </div>
+    <div class="project-model-actions">
+      <button type="button" onclick="startModelEdit('${jsAttrEsc(name)}')">수정</button>
+      <button type="button" class="danger" onclick="requestModelDelete('${jsAttrEsc(name)}')">삭제</button>
+    </div>
+  </div>`;
+}
+
+function renderProjectManager(){
+  const grid=$('projectGroupGrid');
+  if(!grid) return;
+  const notice=$('projectSchemaNotice');
+  if(notice){
+    notice.style.display=hierarchySchemaReady?'none':'';
+    notice.textContent=hierarchySchemaReady?'':(hierarchySchemaMessage||'프로젝트 계층 DB 설정이 필요합니다.');
+  }
+  const projects=allProjectNames();
+  const cards=projects.map((project,index)=>{
+    const models=modelsForProject(project);
+    const stats=projectStats(project);
+    const inputId='model_add_'+index;
+    return `<div class="project-group-card">
+      <div class="project-group-head">
+        <div class="project-group-title-row">
+          <div>
+            <button type="button" class="project-group-title" onclick="goToProjectIssues('${jsAttrEsc(project)}')">${esc(project)}</button>
+            <div class="project-group-meta">Model ${stats.models} · 전체 이슈 ${stats.total} · Open Issue ${stats.open}</div>
+          </div>
+          <div class="project-group-actions">
+            <button type="button" class="btn secondary" onclick="startProjectGroupEdit('${jsAttrEsc(project)}')">수정</button>
+            <button type="button" class="btn danger" onclick="requestProjectGroupDelete('${jsAttrEsc(project)}')">삭제</button>
+          </div>
+        </div>
+      </div>
+      <div class="project-model-list">${models.length?models.map(modelRowHtml).join(''):'<div style="padding:14px 8px;color:#94a3b8;font-size:11px">등록된 Model이 없습니다.</div>'}</div>
+      <div class="project-model-add"><input id="${inputId}" placeholder="Model명을 입력해 주세요." onkeydown="if(event.key==='Enter'){event.preventDefault();addModelToProject('${jsAttrEsc(project)}','${inputId}')}"><button type="button" class="btn primary" onclick="addModelToProject('${jsAttrEsc(project)}','${inputId}')">Model 등록</button></div>
+    </div>`;
+  }).join('');
+
+  const unassigned=unassignedModels();
+  const unassignedCard=unassigned.length ? `<div class="project-group-card">
+    <div class="project-group-head"><div class="project-group-title-row"><div><div class="project-group-title" style="cursor:default">미분류 Model</div><div class="project-group-meta">기존 Model을 수정하여 유니온 / SK쉴더스 / NEC 프로젝트에 배치하세요.</div></div></div></div>
+    <div class="project-model-list">${unassigned.map(modelRowHtml).join('')}</div>
+  </div>` : '';
+
+  grid.innerHTML=(cards||unassignedCard) ? cards+unassignedCard : '<div class="panel"><div class="panel-body" style="color:#64748b">등록된 프로젝트가 없습니다.</div></div>';
+}
+
+function refreshIssueProjectInputs(){
+  const projects=allProjectNames();
+  ['i_group','e_group'].forEach(id=>{
+    const el=$(id); if(!el) return;
+    const prev=el.value;
+    el.innerHTML='<option value="" selected disabled hidden></option>'+projects.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');
+    if(projects.includes(prev)) el.value=prev;
+  });
+}
+function refreshIssueModelForPrefix(prefix){
+  const group=$(`${prefix}_group`)?.value||'';
+  const el=$(`${prefix}_model`); if(!el) return;
+  const prev=el.value;
+  const models=(group?modelsForProject(group):allModelNames().filter(m=>m!=='미지정'));
+  el.innerHTML='<option value="" selected disabled hidden></option>'+models.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('');
+  if(models.includes(prev)) el.value=prev;
+}
+function onIssueModelChange(prefix){
+  const model=$(`${prefix}_model`)?.value||'';
+  const group=modelProjectName(model);
+  if(group && $(`${prefix}_group`)) $(`${prefix}_group`).value=group;
+}
+function refreshIssueModelInputs(){
+  refreshIssueProjectInputs();
+  refreshIssueModelForPrefix('i');
+  refreshIssueModelForPrefix('e');
+}
+
+function projectTreeStatusPill(status,count){
+  if(!count) return '';
+  const cls={'Open':'mini-open','Reopen':'mini-reopen','Resolved':'mini-resolved','Analyzing':'mini-analyzing','Monitoring':'mini-monitoring','Close':'mini-close'}[status]||'';
+  return `<span class="mini-pill ${cls}">${esc(status)} <b>${count}</b></span>`;
+}
+
+function renderProjectIssueTree(){
+  const wrap=$('registeredProjectTree');
+  if(!wrap) return;
+  // 전체 이슈 목록도 DB에 실제 존재하는 Project만 표시합니다.
+  // 최초 DB에는 기본 Project 3개가 생성되므로 삭제 전에는 항상 보이고, 삭제하면 즉시 사라집니다.
+  const projects=allProjectNames();
+  const statuses=['Open','Reopen','Resolved','Analyzing','Monitoring','Close'];
+  const cards=projects.map(project=>{
+    const models=modelsForProject(project);
+    const stats=projectStats(project);
+    const modelRows=models.length?models.map(m=>{
+      const rows=getData().filter(i=>String(i.model||'').trim()===m);
+      const statusHtml=statuses.map(status=>projectTreeStatusPill(status,rows.filter(i=>i.status===status).length)).join('');
+      return `<div class="project-tree-model-row">
+        <button type="button" class="project-tree-model-name" onclick="goToModelIssues('${jsAttrEsc(m)}',false)">${esc(m)}</button>
+        <span class="project-tree-total">Total ${rows.length}</span>
+        <div class="project-tree-statuses">${statusHtml||'<span class="project-tree-empty">등록된 Issue 없음</span>'}</div>
+      </div>`;
+    }).join(''):'<span class="project-tree-empty">등록된 Model 없음</span>';
+    return `<div class="project-tree-card">
+      <div class="project-tree-title"><button type="button" onclick="goToProjectIssues('${jsAttrEsc(project)}')">${esc(project)}</button><span class="project-tree-count">전체 ${stats.total} · Open ${stats.open}</span></div>
+      <div class="project-tree-models">${modelRows}</div>
+    </div>`;
+  }).join('');
+  const unassigned=unassignedModels();
+  const unassignedCard=unassigned.length?`<div class="project-tree-card"><div class="project-tree-title"><span style="font-weight:900">미분류</span><span class="project-tree-count">Model ${unassigned.length}</span></div><div class="project-tree-models">${unassigned.map(m=>`<button type="button" class="project-tree-model-name" onclick="goToModelIssues('${jsAttrEsc(m)}',false)">${esc(m)}</button>`).join('')}</div></div>`:'';
+  wrap.innerHTML=(cards||unassignedCard)?`<div class="project-tree-grid">${cards}${unassignedCard}</div>`:'<span style="font-size:12px;color:#94a3b8">프로젝트 관리에서 프로젝트와 Model을 등록해주세요.</span>';
+}
+
+/* ---------- 이슈 데이터: Supabase Postgres (issues 테이블) ---------- */
+
+async function loadIssues(){
+  if(!isConfigured()) return;
+  const {data,error}=await sb.from('issues').select('*').order('updated',{ascending:false});
+  if(error){ showFatalError('이슈 조회 실패: '+error.message); return; }
+  issuesCache=data||[];
+}
+
+
+function issueNoMatchesModelFormat(issue){
+  const model=String(issue?.model||'').trim();
+  const no=String(issue?.no||'').trim();
+  if(!model || !no) return false;
+  const prefix=model+'-';
+  if(!no.startsWith(prefix)) return false;
+  return /^\d+$/.test(no.slice(prefix.length));
+}
+
+function issueMigrationSortKey(issue){
+  return String(issueSubmittedDate(issue)||issue?.created||issue?.updated||'')+'|'+String(issue?.no||'');
+}
+
+async function moveIssueAttachmentFolder(fromNo,toNo){
+  if(!isConfigured() || !fromNo || !toNo || fromNo===toNo) return;
+  const {data,error}=await sb.storage.from(ATTACH_BUCKET).list(fromNo,{limit:1000});
+  if(error) throw new Error(`첨부파일 목록 조회 실패 (${fromNo}): ${error.message}`);
+  for(const f of (data||[]).filter(x=>x.id)){
+    const fromPath=`${fromNo}/${f.name}`;
+    const toPath=`${toNo}/${f.name}`;
+    const {error:moveError}=await sb.storage.from(ATTACH_BUCKET).move(fromPath,toPath);
+    if(moveError) throw new Error(`첨부파일 이동 실패 (${fromPath} → ${toPath}): ${moveError.message}`);
+  }
+}
+
+async function normalizeExistingIssueNumbers(){
+  if(!isConfigured()) return false;
+  const {data,error}=await sb.from('issues').select('*');
+  if(error) throw new Error('기존 이슈 No. 확인 실패: '+error.message);
+  const rows=data||[];
+  if(!rows.length || rows.every(issueNoMatchesModelFormat)) return false;
+
+  // 기존 형식이 하나라도 있으면 모델별 전체 이슈를 최초 등록 순서로 다시 번호 부여합니다.
+  const groups=new Map();
+  for(const row of rows){
+    const model=String(row.model||'').trim();
+    if(!model) continue;
+    if(!groups.has(model)) groups.set(model,[]);
+    groups.get(model).push(row);
+  }
+
+  const plans=[];
+  for(const [model,list] of groups.entries()){
+    list.sort((a,b)=>issueMigrationSortKey(a).localeCompare(issueMigrationSortKey(b),'ko'));
+    list.forEach((row,index)=>plans.push({oldNo:String(row.no||''),newNo:`${model}-${index+1}`,model,index}));
+  }
+  const changed=plans.filter(p=>p.oldNo && p.oldNo!==p.newNo);
+  if(!changed.length) return false;
+
+  const stamp=Date.now();
+  // 1단계: PK 충돌을 피하기 위해 모든 변경 대상을 임시 No.로 이동합니다.
+  for(let idx=0;idx<changed.length;idx++){
+    const p=changed[idx];
+    p.tempNo=`__ISSUE_NO_MIGRATION__${stamp}_${idx}`;
+    const {error:updateError}=await sb.from('issues').update({no:p.tempNo}).eq('no',p.oldNo);
+    if(updateError) throw new Error(`이슈 No. 임시 변경 실패 (${p.oldNo}): ${updateError.message}`);
+    await moveIssueAttachmentFolder(p.oldNo,p.tempNo);
+  }
+
+  // 2단계: Model명-1, Model명-2 형식의 최종 No.로 변경합니다.
+  for(const p of changed){
+    const {error:updateError}=await sb.from('issues').update({no:p.newNo}).eq('no',p.tempNo);
+    if(updateError) throw new Error(`이슈 No. 최종 변경 실패 (${p.newNo}): ${updateError.message}`);
+    await moveIssueAttachmentFolder(p.tempNo,p.newNo);
+  }
+
+  await loadIssues();
+  dashboardCacheDirty=true;
+  console.info(`기존 이슈 No. ${changed.length}건을 Model명-번호 형식으로 변환했습니다.`);
+  return true;
+}
+
+async function insertIssue(issue){
+  dashboardCacheDirty=true;
+  const {error}=await sb.from('issues').insert(issue);
+  if(error){ alert('저장 실패: '+error.message); throw error; }
+}
+async function updateIssueRow(no,patch){
+  dashboardCacheDirty=true;
+  const {error}=await sb.from('issues').update(patch).eq('no',no);
+  if(error){ alert('수정 실패: '+error.message); throw error; }
+}
+async function deleteIssueRow(no){
+  dashboardCacheDirty=true;
+  const {error}=await sb.from('issues').delete().eq('no',no);
+  if(error){ alert('삭제 실패: '+error.message); throw error; }
+}
+function validateRestoreRows(rows){
+  const seen=new Set();
+  for(const r of rows||[]){
+    const no=String(r.no||'').trim();
+    if(!no) throw new Error('Issue ID가 비어 있는 행이 있습니다.');
+    if(seen.has(no)) throw new Error(`파일 안에 중복 Issue ID가 있습니다: ${no}`);
+    seen.add(no);
+  }
+}
+async function restoreRowsWithRollback(deleteQueryBuilder,rows,backupRows){
+  validateRestoreRows(rows);
+  const {error:delErr}=await deleteQueryBuilder;
+  if(delErr) throw new Error('기존 데이터 정리 실패: '+delErr.message);
+  if(rows.length){
+    const {error:insErr}=await sb.from('issues').insert(rows);
+    if(insErr){
+      // 복원 실패 시 삭제 전 데이터로 최대한 되돌립니다.
+      if(backupRows?.length) await sb.from('issues').insert(backupRows);
+      throw new Error('새 데이터 저장 실패: '+insErr.message);
+    }
+  }
+}
+async function replaceAllIssues(rows){
+  const backup=[...getData()];
+  await restoreRowsWithRollback(sb.from('issues').delete().neq('no','__none__'),rows,backup);
+}
+async function replaceModelIssues(model,rows){
+  const backup=getData().filter(i=>String(i.model||'').trim()===String(model||'').trim());
+  await restoreRowsWithRollback(sb.from('issues').delete().eq('model',model),rows,backup);
+}
+async function replaceProjectIssues(projectName,rows,backupModelNames=[]){
+  const names=[...new Set([...modelsForProject(projectName),...(backupModelNames||[]),...(rows||[]).map(r=>String(r.model||'').trim())].filter(Boolean))];
+  const backup=getData().filter(i=>names.includes(String(i.model||'').trim()));
+  if(!names.length){
+    if(rows.length){const {error}=await sb.from('issues').insert(rows);if(error)throw new Error('새 데이터 저장 실패: '+error.message);}
+    return;
+  }
+  await restoreRowsWithRollback(sb.from('issues').delete().in('model',names),rows,backup);
+}
+
+async function ensureProjectRegistryName(name){
+  const project=String(name||'').trim();
+  if(!project || !hierarchySchemaReady) return;
+  if(projectGroupsCache.includes(project)) return;
+  const {error}=await sb.from('issue_projects').insert({name:project});
+  if(error && !String(error.message||'').toLowerCase().includes('duplicate')) throw error;
+}
+
+async function restoreModelRegistry(modelNames,replaceAll=false){
+  const names=[...new Set((modelNames||[]).map(x=>String(x||'').trim()).filter(x=>x && x!=='-' && x!=='미지정'))];
+  if(!isConfigured()) return;
+  try{
+    if(replaceAll){
+      const {error:delErr}=await sb.from('models').delete().neq('name','__none__');
+      if(delErr) throw delErr;
+    }
+    for(const name of names){
+      if(modelRecord(name)) continue;
+      const row=hierarchySchemaReady?{name,project_name:''}:{name};
+      const {error}=await sb.from('models').insert(row);
+      if(error && !String(error.message||'').toLowerCase().includes('duplicate')) throw error;
+    }
+    await loadModels();
+  }catch(e){
+    console.warn('Model 목록 복원 실패:',e?.message||e);
+    throw new Error('이슈 데이터는 복원되었지만 Model 목록 복원에 실패했습니다: '+(e?.message||e));
+  }
+}
+
+async function restoreHierarchyFromBackup(meta,restored,scope,targetName='',overrideProjectName=''){
+  if(!meta?.model_registry || !Array.isArray(meta.model_registry) || !hierarchySchemaReady){
+    await restoreModelRegistry(restored.map(r=>r.model),false);
+    return;
+  }
+  const registry=meta.model_registry.map(r=>({name:String(r.name||'').trim(),project_name:(String(r.project_name||'').trim()==='자체제품'?'유니온':String(r.project_name||'').trim())})).filter(r=>r.name);
+  const projects=[...new Set([...(meta.projects||[]).map(x=>String(x||'').trim()),...registry.map(r=>r.project_name)].filter(Boolean))];
+
+  if(scope==='all'){
+    const {error:delModels}=await sb.from('models').delete().neq('name','__none__');
+    if(delModels) throw delModels;
+    const {error:delProjects}=await sb.from('issue_projects').delete().neq('name','__none__');
+    if(delProjects) throw delProjects;
+    if(projects.length){
+      const {error}=await sb.from('issue_projects').insert(projects.map(name=>({name})));
+      if(error) throw error;
+    }
+    if(registry.length){
+      const {error}=await sb.from('models').insert(registry);
+      if(error) throw error;
+    }
+    const known=new Set(registry.map(r=>r.name));
+    const missing=[...new Set((restored||[]).map(r=>String(r.model||'').trim()).filter(n=>n && n!=='-' && n!=='미지정' && !known.has(n)))];
+    if(missing.length){
+      const {error}=await sb.from('models').insert(missing.map(name=>({name,project_name:''})));
+      if(error) throw error;
+    }
+  }else if(scope==='project'){
+    const project=String(targetName||meta.project||'').trim();
+    if(project) await ensureProjectRegistryName(project);
+    const targetRegistry=registry.filter(r=>r.project_name===project);
+    const {error:del}=await sb.from('models').delete().eq('project_name',project);
+    if(del) throw del;
+    if(targetRegistry.length){
+      const {error}=await sb.from('models').insert(targetRegistry);
+      if(error) throw error;
+    }
+    const known=new Set(targetRegistry.map(r=>r.name));
+    const missing=[...new Set((restored||[]).map(r=>String(r.model||'').trim()).filter(n=>n && n!=='-' && n!=='미지정' && !known.has(n)))];
+    if(missing.length){
+      const {error}=await sb.from('models').insert(missing.map(name=>({name,project_name:project})));
+      if(error) throw error;
+    }
+  }else if(scope==='model'){
+    const model=String(targetName||meta.model||restored[0]?.model||'').trim();
+    const record=registry.find(r=>r.name===model)||registry[0];
+    // 사용자가 복원 미리보기에서 프로젝트를 직접 선택한 경우, 백업에 저장된
+    // 원래 프로젝트보다 그 선택을 우선합니다 (이전에는 항상 백업 값이 우선되어
+    // 사용자가 고른 프로젝트가 조용히 무시되는 문제가 있었습니다).
+    const projectName=String(overrideProjectName||record?.project_name||'').trim();
+    if(projectName) await ensureProjectRegistryName(projectName);
+    if(model){
+      await sb.from('models').delete().eq('name',model);
+      const {error}=await sb.from('models').insert({name:model,project_name:projectName});
+      if(error) throw error;
+    }
+  }
+  await loadProjectGroups();
+  await loadModels();
+}
+
+function subscribeRealtime(){
+  sb.channel('issues-changes')
+    .on('postgres_changes',{event:'*',schema:'public',table:'issues'},async ()=>{
+      dashboardCacheDirty=true;
+      await loadIssues();
+      renderAll();
+      if(currentNo && $('detail').classList.contains('active')) openDetail(currentNo);
+    })
+    .subscribe();
+
+  try{
+    sb.channel('models-changes')
+      .on('postgres_changes',{event:'*',schema:'public',table:'models'},async ()=>{
+        dashboardCacheDirty=true;
+        await loadModels();
+        renderAll();
+      })
+      .subscribe();
+    sb.channel('issue-projects-changes')
+      .on('postgres_changes',{event:'*',schema:'public',table:'issue_projects'},async ()=>{
+        dashboardCacheDirty=true;
+        await loadProjectGroups();
+        renderAll();
+      })
+      .subscribe();
+  }catch(e){
+    console.warn('프로젝트/Model 실시간 구독 실패:',e?.message||e);
+  }
+}
+
+function nextNo(modelName){
+  const model=String(modelName||'').trim();
+  if(!model) return '';
+  // No.는 Model별 독립 번호로 생성합니다. 예: 12-1, 12-2 / test-1, test-2
+  // 같은 Model에서 사용한 가장 큰 번호 다음 값을 사용하므로 삭제된 번호는 재사용하지 않습니다.
+  const prefix=model+'-';
+  const nums=getData().map(i=>{
+    const no=String(i.no||'').trim();
+    if(!no.startsWith(prefix)) return 0;
+    const suffix=no.slice(prefix.length);
+    return /^\d+$/.test(suffix)?parseInt(suffix,10):0;
+  });
+  return prefix+(Math.max(0,...nums)+1);
+}
+
+async function createIssue(){
+  if(!$('i_title').value.trim()){alert('Headline을 입력하세요.');return}
+  if(!$('i_model').value){alert('Model을 선택하세요.');return}
+  const selectedGroup=modelProjectName($('i_model').value)||$('i_group')?.value||'';
+  if(!selectedGroup){alert('Project를 선택하세요.');return}
+  const newNo=nextNo($('i_model').value);
+  const submitted=now();
+  const initialStatus=$('i_status').value;
+  const initialClosed=initialStatus==='Close'?submitted:'';
+  const initialClosedVersion=initialStatus==='Close' ? $('i_closed_version').value.trim() : '';
+  const issue={
+    no:newNo,
+    project:$('i_project').value,
+    title:$('i_title').value.trim(),
+    status:initialStatus,
+    severity:$('i_severity').value,
+    assignee:$('i_assignee').value.trim()||'미지정',
+    reporter:$('i_reporter').value||'미지정',
+    model:$('i_model').value.trim()||'-',
+    version:$('i_version').value.trim()||'-',
+    steps:$('i_steps').value.trim(),
+    expected:$('i_expected').value.trim(),
+    result:$('i_result').value.trim(),
+    rate:$('i_rate').value.trim()||'-',
+    comments:$('i_comments').value.trim(),
+    created:submitted,
+    submitted_date:submitted,
+    closed_date:initialClosed,
+    closed_version:initialClosedVersion,
+    updated:submitted
+  };
+  await insertIssue(issue);
+  await saveAttachments(newNo,$('i_files').files);
+  await loadIssues();
+  clearCreate();renderAll();showView('issues');
+}
+
+function clearCreate(){
+  ['i_title','i_assignee','i_model','i_group','i_version','i_steps','i_expected','i_result','i_comments'].forEach(id=>{if($(id)) $(id).value='';});
+  $('i_rate').value='100%';$('i_status').value='Open';$('i_severity').value='Average';$('i_reporter').value='우현식';$('i_project').value='FW';$('i_files').value='';$('i_submitted_date').value='';$('i_closed_date').value='';$('i_closed_version').value='';
+  refreshIssueModelForPrefix('i');
+  syncClosedVersionField('i');
+}
+
+function filtered(){
+  const q=$('f_q').value.trim().toLowerCase();
+  const group=$('f_group') ? $('f_group').value : '';
+  const model=$('f_model') ? $('f_model').value : '';
+  const category=$('f_project') ? $('f_project').value : '';
+  const s=$('f_status').value;
+  const sev=$('f_severity').value;
+  const a=$('f_assignee').value.trim().toLowerCase();
+
+  return getData().filter(i=>{
+    const normalizedModel=(i.model && String(i.model).trim()) ? String(i.model).trim() : '미지정';
+    const normalizedCategory=(i.project && String(i.project).trim()) ? String(i.project).trim() : 'Etc';
+    const normalizedGroup=modelProjectName(normalizedModel);
+    return (!q||(String(i.no)+' '+i.title).toLowerCase().includes(q)) &&
+      (!group||normalizedGroup===group) &&
+      (!model||normalizedModel===model) &&
+      (!category||normalizedCategory===category) &&
+      (!s||i.status===s) &&
+      (!sev||i.severity===sev) &&
+      (!a||String(i.assignee).toLowerCase().includes(a));
+  });
+}
+
+function refreshProjectGroupFilter(){
+  const el=$('f_group'); if(!el) return;
+  const previous=el.value;
+  const projects=allProjectNames();
+  el.innerHTML='<option value="">Project</option>'+projects.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');
+  if(projects.includes(previous)) el.value=previous;
+}
+
+function refreshModelFilter(){
+  const modelSelect=$('f_model');
+  if(!modelSelect) return;
+  const previous=modelSelect.value;
+  const group=$('f_group')?.value||'';
+  const models=group ? modelsForProject(group) : allModelNames();
+  modelSelect.innerHTML='<option value="">Model</option>'+models.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('');
+  if(models.includes(previous)) modelSelect.value=previous;
+}
+
+function refreshCategoryFilter(){
+  const categorySelect=$('f_project');
+  if(!categorySelect) return;
+  const previous=categorySelect.value;
+  const selectedGroup=$('f_group')?.value||'';
+  const selectedModel=$('f_model')?.value||'';
+  const categoryOrder=['FW','HW','SW','ME','Field','Etc','Manual'];
+  const categories=[...new Set(getData().filter(i=>{
+    const model=(i.model && String(i.model).trim()) ? String(i.model).trim() : '미지정';
+    if(selectedModel && model!==selectedModel) return false;
+    if(selectedGroup && modelProjectName(model)!==selectedGroup) return false;
+    return true;
+  }).map(i=>(i.project && String(i.project).trim()) ? String(i.project).trim() : 'Etc'))];
+  categories.sort((a,b)=>{
+    const ai=categoryOrder.indexOf(a),bi=categoryOrder.indexOf(b);
+    if(ai!==-1 || bi!==-1){if(ai===-1)return 1;if(bi===-1)return-1;return ai-bi;}
+    return a.localeCompare(b,'ko');
+  });
+  categorySelect.innerHTML='<option value="">Catagory</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  if(categories.includes(previous)) categorySelect.value=previous;
+}
+
+function onProjectGroupFilterChange(){
+  const group=$('f_group')?.value||'';
+  const currentModel=$('f_model')?.value||'';
+  refreshModelFilter();
+  if(group && currentModel && modelProjectName(currentModel)!==group && $('f_model')) $('f_model').value='';
+  refreshCategoryFilter();
+  renderIssues();
+}
+
+function onModelFilterChange(){
+  const model=$('f_model')?.value||'';
+  const group=modelProjectName(model);
+  if(model && group && $('f_group')){
+    refreshProjectGroupFilter();
+    $('f_group').value=group;
+    refreshModelFilter();
+    $('f_model').value=model;
+  }
+  refreshCategoryFilter();
+  renderIssues();
+}
+
+function renderSelectedProjectModels(project){
+  const wrap=$('registeredProjectTree');
+  if(!wrap) return;
+  const models=modelsForProject(project);
+  if(!models.length){
+    wrap.innerHTML='<div class="model-empty">등록된 Model이 없습니다.</div>';
+    return;
+  }
+  const categoryOrder=['FW','HW','SW','ME','Field','Etc','Manual'];
+  const cards=models.map(model=>{
+    const rows=getData().filter(i=>String(i.model||'').trim()===model);
+    const categories={};
+    rows.forEach(i=>{
+      const category=(i.project&&String(i.project).trim())?String(i.project).trim():'Etc';
+      if(!categories[category]) categories[category]={total:0,Open:0,Reopen:0,Resolved:0,Analyzing:0,Monitoring:0,Close:0};
+      const g=categories[category]; g.total++; if(Object.prototype.hasOwnProperty.call(g,i.status)) g[i.status]++;
+    });
+    const names=Object.keys(categories).sort((a,b)=>{
+      const ai=categoryOrder.indexOf(a),bi=categoryOrder.indexOf(b);
+      if(ai!==-1||bi!==-1){if(ai===-1)return 1;if(bi===-1)return-1;return ai-bi;}
+      return a.localeCompare(b,'ko');
+    });
+    const openIssue=rows.filter(i=>i.status!=='Close').length;
+    const pill=(label,count,cls,category)=>count?`<span class="mini-pill ${cls}" role="button" tabindex="0" onclick="openDashboardStatus('${jsAttrEsc(model)}','${jsAttrEsc(category)}','${jsAttrEsc(label)}')">${label} <b>${count}</b></span>`:'';
+    return `<div class="model-card">
+      <div class="model-card-head">
+        <div class="model-title" onclick="goToModelIssues('${jsAttrEsc(model)}',false)" title="${esc(model)} Issue 목록 보기">${esc(model)}</div>
+        <div class="model-head-right"><div class="model-meta">Total ${rows.length} · Open Issue ${openIssue}</div></div>
+      </div>
+      <div class="category-list">
+        ${names.length?names.map(category=>{const g=categories[category];return `<div class="category-row"><div class="category-name">${esc(category)} <span>${g.total}</span></div><div class="category-pills">${pill('Open',g.Open,'mini-open',category)}${pill('Reopen',g.Reopen,'mini-reopen',category)}${pill('Resolved',g.Resolved,'mini-resolved',category)}${pill('Analyzing',g.Analyzing,'mini-analyzing',category)}${pill('Monitoring',g.Monitoring,'mini-monitoring',category)}${pill('Close',g.Close,'mini-close',category)}</div></div>`}).join(''):'<div class="model-empty">등록된 이슈가 없습니다.</div>'}
+      </div>
+    </div>`;
+  }).join('');
+  wrap.innerHTML=`<div class="model-card-grid">${cards}</div>`;
+}
+
+function issueListSortKey(issue){
+  const model=String(issue?.model||'').trim();
+  const no=String(issue?.no||'').trim();
+  let seq=Number.MAX_SAFE_INTEGER;
+  if(model && no.startsWith(model+'-')){
+    const tail=no.slice(model.length+1);
+    if(/^\d+$/.test(tail)) seq=Number(tail);
+  }else{
+    const m=no.match(/-(\d+)$/);
+    if(m) seq=Number(m[1]);
+  }
+  return {model,no,seq};
+}
+function compareIssueListAscending(a,b){
+  const ak=issueListSortKey(a), bk=issueListSortKey(b);
+  const modelCmp=ak.model.localeCompare(bk.model,'ko',{numeric:true,sensitivity:'base'});
+  if(modelCmp!==0) return modelCmp;
+  if(ak.seq!==bk.seq) return ak.seq-bk.seq;
+  return ak.no.localeCompare(bk.no,'ko',{numeric:true,sensitivity:'base'});
+}
+// Model 안에서는 번호가 큰(최신) 이슈가 위, 작은(오래된) 이슈가 아래로 가도록 정렬합니다.
+function compareIssueListDescending(a,b){
+  const ak=issueListSortKey(a), bk=issueListSortKey(b);
+  const modelCmp=ak.model.localeCompare(bk.model,'ko',{numeric:true,sensitivity:'base'});
+  if(modelCmp!==0) return modelCmp;
+  if(ak.seq!==bk.seq) return bk.seq-ak.seq;
+  return bk.no.localeCompare(ak.no,'ko',{numeric:true,sensitivity:'base'});
+}
+
+const ISSUE_PAGE_SIZE=20;
+let issuePage=1;
+let issuePageFilterKey='';
+function goIssuePage(p){
+  const totalPages=Math.max(1,Math.ceil(filtered().length/ISSUE_PAGE_SIZE));
+  const next=Math.min(Math.max(1,p),totalPages);
+  if(next===issuePage) return;
+  issuePage=next;
+  renderIssues();
+  $('issueTableWrap')?.scrollTo({top:0,behavior:'smooth'});
+}
+function renderIssuePaginationUI(totalCount,totalPages){
+  const wrap=$('issuePagination');
+  if(!wrap) return;
+  if(totalCount<=0){ wrap.innerHTML=''; return; }
+  const cur=issuePage;
+  const windowSize=5;
+  let start=Math.max(1,cur-Math.floor(windowSize/2));
+  let end=Math.min(totalPages,start+windowSize-1);
+  start=Math.max(1,end-windowSize+1);
+  let pageBtns='';
+  for(let p=start;p<=end;p++){
+    pageBtns+=`<button type="button" class="page-btn${p===cur?' active':''}" ${p===cur?'aria-current="page"':''} onclick="goIssuePage(${p})">${p}</button>`;
+  }
+  wrap.innerHTML=`
+    <button type="button" class="page-nav" onclick="goIssuePage(${cur-1})" ${cur<=1?'disabled':''}>‹ 이전</button>
+    ${start>1?`<button type="button" class="page-btn" onclick="goIssuePage(1)">1</button>${start>2?'<span class="page-ellipsis">…</span>':''}`:''}
+    ${pageBtns}
+    ${end<totalPages?`${end<totalPages-1?'<span class="page-ellipsis">…</span>':''}<button type="button" class="page-btn" onclick="goIssuePage(${totalPages})">${totalPages}</button>`:''}
+    <button type="button" class="page-nav" onclick="goIssuePage(${cur+1})" ${cur>=totalPages?'disabled':''}>다음 ›</button>
+    <span class="page-summary">총 ${totalCount}건 · ${cur}/${totalPages} 페이지</span>
+  `;
+}
+
+
+function renderIssues(){
+  refreshProjectGroupFilter();
+  refreshModelFilter();
+  refreshCategoryFilter();
+  const selectedGroup=$('f_group')?.value || '';
+  const selectedModel=$('f_model')?.value || '';
+  const title=$('issuePageTitle');
+  const desc=$('issuePageDesc');
+  if(title) title.textContent=selectedModel ? `${selectedModel} Issue 목록` : selectedGroup ? `${selectedGroup} Issue 현황 및 목록` : '전체 이슈 목록';
+  if(desc) desc.textContent=selectedModel
+    ? `${selectedModel} Model에 등록된 이슈를 조회하고 관리합니다.`
+    : selectedGroup ? `${selectedGroup} 프로젝트의 Model별 현황과 전체 Issue 목록을 확인합니다.`
+    : '모든 프로젝트와 Model의 이슈를 한 곳에서 조회하고 조건별로 필터링합니다.';
+
+  const hierarchyPanel=$('modelProjectPanel');
+  if(hierarchyPanel) hierarchyPanel.style.display=selectedModel ? 'none' : '';
+  const projectManageBtn=$('issueProjectManageBtn');
+  // 프로젝트별 화면에서는 관리 기능이 노출되지 않도록 하고,
+  // 전체 이슈 목록에서만 프로젝트 관리 버튼을 표시합니다.
+  if(projectManageBtn) projectManageBtn.style.display=(!selectedGroup && !selectedModel) ? '' : 'none';
+  if(selectedGroup && !selectedModel) renderSelectedProjectModels(selectedGroup);
+  else if(!selectedGroup && !selectedModel) renderProjectIssueTree();
+
+  // 프로젝트 선택 시에는 Project 필터를 다시 보여주지 않습니다. 이미 프로젝트 범위가 정해져 있기 때문입니다.
+  // 전체 이슈 목록에서는 Project 필터를 유지합니다.
+  const filterBar=$('issueFilterBar');
+  if(filterBar){
+    filterBar.style.display='';
+    filterBar.classList.toggle('project-scope',!!selectedGroup && !selectedModel);
+    filterBar.classList.toggle('model-scope',!!selectedModel);
+  }
+  const groupFilter=$('f_group');
+  if(groupFilter) groupFilter.style.display=selectedGroup ? 'none' : '';
+  const modelFilter=$('f_model');
+  if(modelFilter) modelFilter.style.display=selectedModel ? 'none' : '';
+  if($('issueTableWrap')) $('issueTableWrap').style.display='';
+
+  // Issue No.는 Model별 번호가 큰(최신) 순서 → 작은(오래된) 순서로 정렬해 오래된 이슈가 아래로 내려가게 합니다.
+  // 필터 조건이 바뀌면 1페이지로 되돌리고, 그렇지 않으면(페이지 이동 등) 현재 페이지를 유지합니다.
+  const filterKey=JSON.stringify([$('f_q')?.value,selectedGroup,selectedModel,$('f_project')?.value,$('f_status')?.value,$('f_severity')?.value,$('f_assignee')?.value]);
+  if(filterKey!==issuePageFilterKey){issuePage=1;issuePageFilterKey=filterKey;}
+  const allRows=filtered().sort(compareIssueListDescending);
+  const totalCount=allRows.length;
+  const totalPages=Math.max(1,Math.ceil(totalCount/ISSUE_PAGE_SIZE));
+  if(issuePage>totalPages) issuePage=totalPages;
+  if(issuePage<1) issuePage=1;
+  const startIdx=(issuePage-1)*ISSUE_PAGE_SIZE;
+  const a=allRows.slice(startIdx,startIdx+ISSUE_PAGE_SIZE);
+  renderIssuePaginationUI(totalCount,totalPages);
+  $('issueBody').innerHTML=a.map(i=>`
+    <tr onclick="openDetail('${i.no}')">
+      <td class="no">${esc(i.no)}</td>
+      <td><span class="badge category-badge">${esc(i.project||'-')}</span></td>
+      <td><b>${esc(i.title)}</b></td>
+      <td>${statusBadge(i.status)}</td>
+      <td>${severityBadge(i.severity)}</td>
+      <td>${esc(i.assignee)}</td>
+      <td>${esc(i.reporter)}</td>
+      <td>${esc(i.updated)}</td>
+    </tr>`).join('') || '<tr><td colspan="8" style="padding:28px;text-align:center;color:#64748b">등록된 이슈가 없습니다.</td></tr>';
+}
+
+function buildDashboardStatsCache(){
+  const rows=getData();
+  const categoryOrder=['FW','HW','SW','ME','Field','Etc','Manual'];
+  const statuses=['Open','Reopen','Resolved','Analyzing','Monitoring','Close'];
+  const modelMap={};
+  for(const i of rows){
+    const model=(i.model&&String(i.model).trim())?String(i.model).trim():'미지정';
+    const category=(i.project&&String(i.project).trim())?String(i.project).trim():'Etc';
+    if(!modelMap[model]) modelMap[model]={};
+    if(!modelMap[model][category]) modelMap[model][category]={total:0,Open:0,Reopen:0,Resolved:0,Analyzing:0,Monitoring:0,Close:0};
+    const x=modelMap[model][category]; x.total++; if(statuses.includes(i.status)) x[i.status]++;
+  }
+  const projects=allProjectNames().map(project=>{
+    const models=modelsForProject(project).map(name=>{
+      const cats=modelMap[name]||{};
+      const categories=Object.keys(cats).sort((a,b)=>{const ai=categoryOrder.indexOf(a),bi=categoryOrder.indexOf(b);if(ai!==-1||bi!==-1){if(ai===-1)return 1;if(bi===-1)return-1;return ai-bi;}return a.localeCompare(b,'ko')});
+      const total=categories.reduce((n,c)=>n+cats[c].total,0);
+      const close=categories.reduce((n,c)=>n+cats[c].Close,0);
+      return {name,total,open_issue:total-close,categories:categories.map(name=>({name,...cats[name]}))};
+    });
+    const projectTotal=models.reduce((n,m)=>n+m.total,0), projectOpen=models.reduce((n,m)=>n+m.open_issue,0);
+    return {name:project,total:projectTotal,open_issue:projectOpen,models};
+  });
+  const unassignedNames=unassignedModels();
+  const unassigned=unassignedNames.map(name=>{
+    const cats=modelMap[name]||{}; const categories=Object.keys(cats).sort((a,b)=>a.localeCompare(b,'ko'));
+    const total=categories.reduce((n,c)=>n+cats[c].total,0),close=categories.reduce((n,c)=>n+cats[c].Close,0);
+    return {name,total,open_issue:total-close,categories:categories.map(name=>({name,...cats[name]}))};
+  });
+  return {version:1,summary:{total:rows.length,Open:rows.filter(i=>i.status==='Open').length,Reopen:rows.filter(i=>i.status==='Reopen').length,Close:rows.filter(i=>i.status==='Close').length},projects,unassigned,updated_at:new Date().toISOString()};
+}
+
+function renderDashboardFromCache(cache){
+  if(!cache?.summary) return false;
+  $('c_total').textContent=cache.summary.total||0;
+  $('c_open').textContent=cache.summary.Open||0;
+  $('c_reopen').textContent=cache.summary.Reopen||0;
+  $('c_close').textContent=cache.summary.Close||0;
+
+  const statusDefs=[
+    {key:'Open', cls:'mini-open', seg:'status-seg-open'},
+    {key:'Reopen', cls:'mini-reopen', seg:'status-seg-reopen'},
+    {key:'Resolved', cls:'mini-resolved', seg:'status-seg-resolved'},
+    {key:'Analyzing', cls:'mini-analyzing', seg:'status-seg-analyzing'},
+    {key:'Monitoring', cls:'mini-monitoring', seg:'status-seg-monitoring'},
+    {key:'Close', cls:'mini-close', seg:'status-seg-close'}
+  ];
+  const pill=(model,category,label,count,cls)=>count?`<button type="button" class="mini-pill ${cls}" onclick="openDashboardStatus('${jsAttrEsc(model)}','${jsAttrEsc(category)}','${jsAttrEsc(label)}')" title="${esc(label)} 이슈 ${count}건 보기">${label} <b>${count}</b></button>`:'';
+  const graph=(model,category,row)=>{
+    const total=Math.max(0, Number(row?.total||0));
+    if(!total) return '<div class="graph-empty">이슈 없음</div>';
+    // Close 등 특정 상태의 건수가 압도적으로 많아도 다른 상태(Open 등)가 너무 얇아져 안 보이거나
+    // 클릭할 수 없게 되지 않도록, 각 구간에 최소 폭(%)을 보장한 뒤 합이 100%가 되도록 재조정합니다.
+    const nonZero=statusDefs.filter(s=>Number(row?.[s.key]||0)>0);
+    const minPct=nonZero.length?Math.min(10,100/nonZero.length):0;
+    const floored=nonZero.map(s=>{
+      const count=Number(row?.[s.key]||0);
+      return {s,count,pct:Math.max(minPct,(count/total)*100)};
+    });
+    const sumPct=floored.reduce((n,f)=>n+f.pct,0)||1;
+    const segs=floored.map(f=>{
+      const finalPct=(f.pct/sumPct*100).toFixed(2);
+      return `<button type="button" class="status-seg ${f.s.seg}" style="flex:0 0 ${finalPct}%" onclick="openDashboardStatus('${jsAttrEsc(model)}','${jsAttrEsc(category)}','${jsAttrEsc(f.s.key)}')" title="${esc(category)} · ${esc(f.s.key)} ${f.count}건"></button>`;
+    }).join('');
+    return `<div class="category-graph" title="${esc(category)} 전체 ${total}건">${segs}</div>`;
+  };
+  const renderModel=m=>`<div class="model-card"><div class="model-card-head"><div class="model-title" onclick="openDashboardModel('${jsAttrEsc(m.name)}')">${esc(m.name)}</div><div class="model-head-right"><div class="model-meta">Total ${m.total||0} · Open Issue ${m.open_issue||0}</div></div></div><div class="category-list">${(m.categories||[]).length?(m.categories||[]).map(c=>`<div class="category-row"><div class="category-name"><span>${esc(c.name)}</span><span class="category-total-text">Total ${c.total||0}</span></div><div class="category-graph-wrap">${graph(m.name,c.name,c)}<div class="category-legend">${statusDefs.map(s=>pill(m.name,c.name,s.key,c[s.key],s.cls)).join('')}</div></div></div>`).join(''):'<div class="model-empty">등록된 이슈가 없습니다.</div>'}</div></div>`;
+  const sections=(cache.projects||[]).filter(p=>(p.models||[]).length).map(p=>`<div class="dashboard-project-section"><div class="dashboard-project-head"><button type="button" class="dashboard-project-name" onclick="goToProjectIssues('${jsAttrEsc(p.name)}')">${esc(p.name)}</button><span class="dashboard-project-meta">Model ${(p.models||[]).length} · Total ${p.total||0} · Open Issue ${p.open_issue||0}</span></div><div class="model-card-grid">${(p.models||[]).map(renderModel).join('')}</div></div>`);
+  if((cache.unassigned||[]).length) sections.push(`<div class="dashboard-project-section"><div class="dashboard-project-head"><span class="dashboard-project-name" style="cursor:default">미분류</span><span class="dashboard-project-meta">Model ${cache.unassigned.length}</span></div><div class="model-card-grid">${cache.unassigned.map(renderModel).join('')}</div></div>`);
+  $('categoryModelSummary').innerHTML=sections.length?sections.join(''):'<div class="model-empty">등록된 Model이 없습니다.</div>';
+  return true;
+}
+
+async function refreshDashboardStatsCache(){
+  dashboardCacheWriteTimer=null;
+  if(!dashboardCacheDirty && dashboardCacheData) return;
+  const next=buildDashboardStatsCache();
+  dashboardCacheData=next;
+  dashboardCacheDirty=false;
+  renderDashboardFromCache(next);
+  await writeAppCache('dashboard_stats',next);
+}
+
+function scheduleDashboardCacheRefresh(){
+  if(!dashboardCacheDirty) return;
+  clearTimeout(dashboardCacheWriteTimer);
+  dashboardCacheWriteTimer=setTimeout(()=>refreshDashboardStatsCache().catch(e=>console.warn('대시보드 캐시 갱신 실패',e)),150);
+}
+
+function renderDashboard(){
+  const cache=(dashboardCacheData && !dashboardCacheDirty)?dashboardCacheData:buildDashboardStatsCache();
+  renderDashboardFromCache(cache);
+  if(!dashboardCacheData || dashboardCacheDirty){
+    dashboardCacheData=cache;
+    dashboardCacheDirty=true;
+    scheduleDashboardCacheRefresh();
+  }
+}
+
+function rewriteSummaryIssueStatus(summaryXml,rows){
+  const severities=['Critical','Major','Average','Minor'];
+  const statuses=['Open','Reopen','Resolved','Analyzing','Monitoring','Close'];
+
+  // Total Issue Status: 현재 백업 대상 데이터로 값을 직접 기입합니다.
+  // 템플릿의 UBio-Touch Air 수식 캐시값이 남지 않도록 수식이 아닌 실제 숫자로 교체합니다.
+  severities.forEach((sev,si)=>{
+    const r=19+si;
+    let rowTotal=0;
+    statuses.forEach((st,sti)=>{
+      const count=summaryCount(rows,sev,st);
+      rowTotal+=count;
+      summaryXml=replaceCompanyWorksheetCellKeepStyle(summaryXml,String.fromCharCode(66+sti)+r,count,'number');
+    });
+    summaryXml=replaceCompanyWorksheetCellKeepStyle(summaryXml,'H'+r,rowTotal,'number');
+  });
+  statuses.forEach((st,sti)=>{
+    const count=summaryCount(rows,'',st);
+    summaryXml=replaceCompanyWorksheetCellKeepStyle(summaryXml,String.fromCharCode(66+sti)+'23',count,'number');
+  });
+  summaryXml=replaceCompanyWorksheetCellKeepStyle(summaryXml,'H23',(rows||[]).length,'number');
+
+  // Issue Status for each Catagories 영역도 Air 데이터가 남지 않도록 전부 현재 데이터로 다시 계산합니다.
+  const categoryStarts={FW:28,HW:36,ME:44,Field:52,Manual:60,SW:68,Etc:76};
+  Object.entries(categoryStarts).forEach(([category,startRow])=>{
+    severities.forEach((sev,si)=>{
+      const r=startRow+si;
+      let rowTotal=0;
+      statuses.forEach((st,sti)=>{
+        const count=summaryCount(rows,sev,st,category);
+        rowTotal+=count;
+        summaryXml=replaceCompanyWorksheetCellKeepStyle(summaryXml,String.fromCharCode(66+sti)+r,count,'number');
+      });
+      summaryXml=replaceCompanyWorksheetCellKeepStyle(summaryXml,'H'+r,rowTotal,'number');
+    });
+    const totalRow=startRow+4;
+    statuses.forEach((st,sti)=>{
+      const count=summaryCount(rows,'',st,category);
+      summaryXml=replaceCompanyWorksheetCellKeepStyle(summaryXml,String.fromCharCode(66+sti)+totalRow,count,'number');
+    });
+    summaryXml=replaceCompanyWorksheetCellKeepStyle(summaryXml,'H'+totalRow,summaryCount(rows,'','',category),'number');
+  });
+
+  return summaryXml;
+}
+
+function setTotalIssueOpenPosition(sheetXml,lastRow){
+  // 회사 원본 템플릿은 Total Issue 시트를 162행 부근에서 열도록 저장되어 있습니다.
+  // 백업 파일은 마지막 이슈의 Issue ID(A열)를 선택하고, 해당 행이 화면 안에 보이도록 위치를 다시 지정합니다.
+  const targetRow=Math.max(2,Number(lastRow)||2);
+  const topRow=Math.max(2,targetRow-12);
+  sheetXml=sheetXml.replace(/(<sheetView\b[^>]*\btopLeftCell=")[^"]*(")/,`$1A1$2`);
+  sheetXml=sheetXml.replace(/(<pane\b[^>]*\btopLeftCell=")[^"]*(")/,`$1A${topRow}$2`);
+  sheetXml=sheetXml.replace(/(<selection\b[^>]*\bactiveCell=")[^"]*(")/,`$1A${targetRow}$2`);
+  sheetXml=sheetXml.replace(/(<selection\b[^>]*\bsqref=")[^"]*(")/,`$1A${targetRow}$2`);
+  return sheetXml;
+}
+
+function totalIssueCellStyles(status){
+  // 회사 원본 양식 기준:
+  // Open = 색상 채움 없음 / Reopen = 연보라색 / 그 외 = 원본 기본 행 스타일
+  if(status==='Open'){
+    return {A:188,B:227,C:227,D:227,E:228,F:189,G:227,H:229,I:227,J:227,K:229,L:230,M:227,N:231,O:232,P:227,Q:227,R:227};
+  }
+  if(status==='Reopen'){
+    // 원본 Total Issue 시트의 Reopen 행 스타일을 그대로 재사용합니다. (Accent4 연보라)
+    return {A:130,B:125,C:125,D:125,E:145,F:125,G:125,H:126,I:125,J:125,K:125,L:128,M:125,N:127,O:129,P:125,Q:185,R:125};
+  }
+  return {A:130,B:131,C:131,D:131,E:142,F:133,G:143,H:134,I:135,J:135,K:136,L:137,M:135,N:135,O:141,P:139,Q:133,R:139};
+}
+
+async function removeTotalIssueTemplateImages(zip){
+  // 회사 원본 Total Issue 시트(sheet2)에 남아 있던 예시/첨부 이미지를 백업 파일에서는 제거합니다.
+  const sheetPath='xl/worksheets/sheet2.xml';
+  const relPath='xl/worksheets/_rels/sheet2.xml.rels';
+  let drawingRelId='';
+
+  if(zip.file(relPath)){
+    let rels=await zip.file(relPath).async('string');
+    const relMatch=rels.match(/<Relationship\b[^>]*Id="([^"]+)"[^>]*Type="http:\/\/schemas\.openxmlformats\.org\/officeDocument\/2006\/relationships\/drawing"[^>]*Target="\.\.\/drawings\/drawing1\.xml"[^>]*\/>/i)
+      || rels.match(/<Relationship\b[^>]*Target="\.\.\/drawings\/drawing1\.xml"[^>]*Id="([^"]+)"[^>]*\/>/i);
+    if(relMatch) drawingRelId=relMatch[1];
+    rels=rels.replace(/<Relationship\b[^>]*Target="\.\.\/drawings\/drawing1\.xml"[^>]*\/>/gi,'');
+    zip.file(relPath,rels);
+  }
+
+  if(zip.file(sheetPath)){
+    let sx=await zip.file(sheetPath).async('string');
+    if(drawingRelId){
+      const id=drawingRelId.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      sx=sx.replace(new RegExp('<drawing\\b[^>]*r:id="'+id+'"[^>]*/>','gi'),'');
+    }
+    // 현재 회사 템플릿에서는 Total Issue의 drawing이 이미지 전용이므로 남은 drawing 태그도 제거합니다.
+    sx=sx.replace(/<drawing\b[^>]*\/>/gi,'');
+    zip.file(sheetPath,sx);
+  }
+
+  zip.remove('xl/drawings/drawing1.xml');
+  zip.remove('xl/drawings/_rels/drawing1.xml.rels');
+  for(let n=1;n<=20;n++) zip.remove(`xl/media/image${n}.png`);
+
+  if(zip.file('[Content_Types].xml')){
+    let types=await zip.file('[Content_Types].xml').async('string');
+    types=types.replace(/<Override\b[^>]*PartName="\/xl\/drawings\/drawing1\.xml"[^>]*\/>/gi,'');
+    zip.file('[Content_Types].xml',types);
+  }
+}
+
+function estimateCompanyRowHeight(vals){
+  const candidates=[vals[4],vals[5],vals[6],vals[14],vals[15],vals[16]];
+  const maxLines=Math.max(1,...candidates.map(v=>String(v||'').split('\n').length));
+  return Math.max(48,Math.min(240,Math.round(maxLines*14.5+20)));
+}
+
+function base64ToUint8Array(b64){
+  const bin=atob(b64);
+  const arr=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+  return arr;
+}
+
+function injectBackupMetadata(coreXml,meta){
+  const payload='QA_WEB_BACKUP:'+btoa(unescape(encodeURIComponent(JSON.stringify(meta))));
+  const tag=`<dc:description>${xmlText(payload)}</dc:description>`;
+  if(/<dc:description>[\s\S]*?<\/dc:description>/.test(coreXml)){
+    return coreXml.replace(/<dc:description>[\s\S]*?<\/dc:description>/,tag);
+  }
+  return coreXml.replace('</cp:coreProperties>',tag+'</cp:coreProperties>');
+}
+
+function extractBackupMetadata(coreXml){
+  const m=String(coreXml||'').match(/<dc:description>([\s\S]*?)<\/dc:description>/);
+  if(!m) return null;
+  const div=document.createElement('textarea'); div.innerHTML=m[1];
+  const text=div.value||div.textContent||'';
+  if(!text.startsWith('QA_WEB_BACKUP:')) return null;
+  try{return JSON.parse(decodeURIComponent(escape(atob(text.slice('QA_WEB_BACKUP:'.length)))))}catch(e){return null}
+}
+
+function parseSimpleDate(v){
+  if(!v) return '';
+  if(v instanceof Date && !Number.isNaN(v.getTime())){
+    return v.getFullYear()+'-'+String(v.getMonth()+1).padStart(2,'0')+'-'+String(v.getDate()).padStart(2,'0');
+  }
+  if(typeof v==='number' && window.XLSX){
+    const d=XLSX.SSF.parse_date_code(v);
+    if(d) return d.y+'-'+String(d.m).padStart(2,'0')+'-'+String(d.d).padStart(2,'0');
+  }
+  const text=String(v).trim().replace(/\./g,'-').replace(/\//g,'-');
+  const m=text.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+  return m ? m[1]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[3]).padStart(2,'0') : text;
+}
+
+// Submitted Date는 이슈의 최초 등록일을 유지합니다.
+// 구버전 데이터에서 created / submitted_date 중 하나가 수정일처럼 늦게 저장된 경우가 있을 수 있으므로
+// 두 값 중 유효한 더 이른 날짜를 최초 등록일로 사용합니다. 별도 화면 항목은 추가하지 않습니다.
+function issueSubmittedDate(i){
+  if(!i) return '';
+  const candidates=[i.submitted_date,i.created]
+    .map(parseSimpleDate)
+    .filter(v=>/^\d{4}-\d{2}-\d{2}$/.test(v));
+  if(!candidates.length) return '';
+  return candidates.sort()[0];
+}
+
+function closedPeriodDays(start,end){
+  const a=parseSimpleDate(start), b=parseSimpleDate(end);
+  if(!a||!b) return '';
+  const da=new Date(a+'T00:00:00'), db=new Date(b+'T00:00:00');
+  if(Number.isNaN(da.getTime())||Number.isNaN(db.getTime())) return '';
+  return Math.max(0,Math.round((db-da)/86400000));
+}
+
+function parseCompanyDescriptions(text){
+  const src=String(text||'');
+  const specs=[
+    ['Headline',['Headline']],
+    ['Operation Step',['Operation Step']],
+    ['Expected Result',['Expected Result']],
+    ['Test Result',['Test Result']],
+    ['Occurrence Rate',['Occurence Rate','Occurrence Rate']],
+    ['Comments',['Comments']]
+  ];
+  const out={};
+  for(let i=0;i<specs.length;i++){
+    const [key,aliases]=specs[i];
+    const here=aliases.map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|');
+    const nextAliases=specs.slice(i+1).flatMap(x=>x[1]).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|');
+    const re=nextAliases
+      ? new RegExp('(?:'+here+')\\s*:\\s*([\\s\\S]*?)(?=\\n(?:'+nextAliases+')\\s*:)', 'i')
+      : new RegExp('(?:'+here+')\\s*:\\s*([\\s\\S]*)$', 'i');
+    const m=src.match(re); if(m) out[key]=m[1].trim();
+  }
+  return out;
+}
+
+function remarkToActivities(text,team){
+  const src=String(text||'').trim();
+  if(!src) return [];
+
+  if(team==='개발검증팀'){
+    const blocks=src.split(/\n\s*\n(?=\d{4}\.\d{2}\.\d{2}(?:\s|$))/);
+    return blocks.map(block=>{
+      const m=block.match(/^(\d{4})\.(\d{2})\.(\d{2})\s*\n?([\s\S]*)$/);
+      if(!m) return {team,author:'-',body:block,old_status:null,new_status:null,created_at:new Date().toISOString()};
+      const rest=m[4]||'';
+      const sm=rest.match(/(?:^|\n)Status\s*:\s*([^\n→]+)\s*→\s*([^\n]+)/i);
+      const body=rest.replace(/(?:^|\n)Status\s*:\s*[^\n→]+\s*→\s*[^\n]+/i,'').trim();
+      return {
+        team,author:'-',body:body||null,
+        old_status:sm?sm[1].trim():null,new_status:sm?sm[2].trim():null,
+        created_at:m[1]+'-'+m[2]+'-'+m[3]+'T00:00:00'
+      };
+    });
+  }
+
+  const blocks=src.split(/\n\s*\n(?=\[\d{8}_)/);
+  return blocks.map(block=>{
+    const m=block.match(/^\[(\d{8})_([^\]]+)\]\s*\n?([\s\S]*)$/);
+    if(!m) return {team,author:'-',body:block,old_status:null,new_status:null,created_at:new Date().toISOString()};
+    const d=m[1], rest=m[3]||'';
+    const sm=rest.match(/(?:^|\n)Status\s*:\s*([^\n→]+)\s*→\s*([^\n]+)/i);
+    const body=rest.replace(/(?:^|\n)Status\s*:\s*[^\n→]+\s*→\s*[^\n]+/i,'').trim();
+    return {
+      team,author:m[2].trim(),body:body||null,
+      old_status:sm?sm[1].trim():null,new_status:sm?sm[2].trim():null,
+      created_at:d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8)+'T00:00:00'
+    };
+  });
+}
+
+
+function companyBackupRows(rows){
+  return [...(rows||[])].sort((a,b)=>{
+    const ma=String(a.model||'').trim(), mb=String(b.model||'').trim();
+    const ga=modelProjectName(ma)||'미분류', gb=modelProjectName(mb)||'미분류';
+    const gc=projectNameCompare(ga,gb);
+    if(gc) return gc;
+    const mc=ma.localeCompare(mb,'ko',{numeric:true,sensitivity:'base'});
+    if(mc) return mc;
+    const da=issueSubmittedDate(a), db=issueSubmittedDate(b);
+    if(da!==db) return da.localeCompare(db);
+    const na=String(a.no||''), nb=String(b.no||'');
+    return na.localeCompare(nb,'ko',{numeric:true,sensitivity:'base'});
+  });
+}
+
+function rewriteReleaseVersionOpenIssue(xml,rows){
+  const counts=new Map();
+  (rows||[]).filter(i=>i.status!=='Close').forEach(i=>{
+    const version=String(i.version||'').trim()||'미지정';
+    counts.set(version,(counts.get(version)||0)+1);
+  });
+  const versions=[...counts.keys()].sort((a,b)=>a.localeCompare(b,'ko',{numeric:true,sensitivity:'base'})).slice(0,12);
+  const cols='BCDEFGHIJKLM'.split('');
+  cols.forEach((col,index)=>{
+    const ver=versions[index]||'';
+    xml=replaceCompanyWorksheetCellKeepStyle(xml,col+'2',ver,ver?'text':'blank');
+    xml=replaceCompanyWorksheetCellKeepStyle(xml,col+'3',ver?counts.get(ver):'',ver?'number':'blank');
+  });
+  return xml;
+}
+
+function rewriteFixRateSheet(xml,rows,ids){
+  const statuses=['Open','Reopen','Resolved','Analyzing','Monitoring','Close'];
+  statuses.forEach((st,idx)=>{ xml=replaceCompanyWorksheetCellKeepStyle(xml,String.fromCharCode(66+idx)+'3',summaryCount(rows,'',st),'number'); });
+  const unclose=(rows||[]).filter(i=>i.status!=='Close').length;
+  const total=(rows||[]).length;
+  xml=replaceCompanyWorksheetCellKeepStyle(xml,'H3',unclose,'number');
+  xml=replaceCompanyWorksheetCellKeepStyle(xml,'I3',total,'number');
+  xml=replaceCompanyWorksheetCellKeepStyle(xml,'J3',total?unclose/total:0,'number');
+
+  const idMap=new Map((rows||[]).map((i,idx)=>[String(i.no||''),ids[idx]||'']));
+  const closed=(rows||[]).filter(i=>i.status==='Close' && parseSimpleDate(i.closed_date)).sort((a,b)=>{
+    const c=parseSimpleDate(a.closed_date).localeCompare(parseSimpleDate(b.closed_date));
+    return c || issueSubmittedDate(a).localeCompare(issueSubmittedDate(b));
+  }).slice(-20);
+  for(let x=0;x<20;x++){
+    const r=6+x, i=closed[x];
+    const vals=i ? [idMap.get(String(i.no||''))||'',i.severity||'',i.version||'',excelSerialDate(issueSubmittedDate(i)),excelSerialDate(i.closed_date),closedPeriodDays(issueSubmittedDate(i),i.closed_date)] : ['','','','','',''];
+    xml=replaceCompanyWorksheetCellKeepStyle(xml,'A'+r,vals[0],vals[0]?'text':'blank');
+    xml=replaceCompanyWorksheetCellKeepStyle(xml,'B'+r,vals[1],vals[1]?'text':'blank');
+    xml=replaceCompanyWorksheetCellKeepStyle(xml,'C'+r,vals[2],vals[2]?'text':'blank');
+    xml=replaceCompanyWorksheetCellKeepStyle(xml,'D'+r,vals[3],vals[3]!==''?'number':'blank');
+    xml=replaceCompanyWorksheetCellKeepStyle(xml,'E'+r,vals[4],vals[4]!==''?'number':'blank');
+    xml=replaceCompanyWorksheetCellKeepStyle(xml,'F'+r,vals[5],vals[5]!==''?'number':'blank');
+  }
+
+  const byVersion=new Map();
+  closed.forEach(i=>{
+    const v=String(i.version||'').trim()||'미지정';
+    const d=closedPeriodDays(issueSubmittedDate(i),i.closed_date);
+    if(d==='') return;
+    if(!byVersion.has(v)) byVersion.set(v,[]);
+    byVersion.get(v).push(d);
+  });
+  const versions=[...byVersion.keys()].sort((a,b)=>a.localeCompare(b,'ko',{numeric:true,sensitivity:'base'})).slice(0,8);
+  for(let x=0;x<8;x++){
+    const r=6+x, v=versions[x]||'';
+    const ds=v?byVersion.get(v):[];
+    const avg=ds?.length ? ds.reduce((a,b)=>a+b,0)/ds.length : '';
+    xml=replaceCompanyWorksheetCellKeepStyle(xml,'H'+r,v,v?'text':'blank');
+    xml=replaceCompanyWorksheetCellKeepStyle(xml,'I'+r,avg,avg!==''?'number':'blank');
+  }
+  const allDays=closed.map(i=>closedPeriodDays(issueSubmittedDate(i),i.closed_date)).filter(v=>v!=='');
+  const totalAvg=allDays.length?allDays.reduce((a,b)=>a+b,0)/allDays.length:'';
+  xml=replaceCompanyWorksheetCellKeepStyle(xml,'H14','Total','text');
+  xml=replaceCompanyWorksheetCellKeepStyle(xml,'I14',totalAvg,totalAvg!==''?'number':'blank');
+  return xml;
+}
+
+function rewriteSeverityDistribution(xml,rows){
+  const severities=['Critical','Major','Average','Minor'];
+  const statuses=['Open','Reopen','Resolved','Analyzing','Monitoring','Close'];
+  const total=(rows||[]).length;
+  severities.forEach((sev,si)=>{
+    const r=15+si;
+    let sevTotal=0, unclose=0;
+    statuses.forEach((st,sti)=>{
+      const count=summaryCount(rows,sev,st);
+      sevTotal+=count; if(st!=='Close') unclose+=count;
+      xml=replaceCompanyWorksheetCellKeepStyle(xml,String.fromCharCode(66+sti)+r,count,'number');
+    });
+    xml=replaceCompanyWorksheetCellKeepStyle(xml,'H'+r,sevTotal,'number');
+    xml=replaceCompanyWorksheetCellKeepStyle(xml,'I'+r,total?sevTotal/total:0,'number');
+    xml=replaceCompanyWorksheetCellKeepStyle(xml,'J'+r,sevTotal?unclose/sevTotal:0,'number');
+    xml=replaceCompanyWorksheetCellKeepStyle(xml,'K'+r,unclose,'number');
+  });
+  statuses.forEach((st,sti)=>xml=replaceCompanyWorksheetCellKeepStyle(xml,String.fromCharCode(66+sti)+'19',summaryCount(rows,'',st),'number'));
+  const unclose=(rows||[]).filter(i=>i.status!=='Close').length;
+  xml=replaceCompanyWorksheetCellKeepStyle(xml,'H19',total,'number');
+  xml=replaceCompanyWorksheetCellKeepStyle(xml,'I19',total?1:0,'number');
+  xml=replaceCompanyWorksheetCellKeepStyle(xml,'J19',total?unclose/total:0,'number');
+  xml=replaceCompanyWorksheetCellKeepStyle(xml,'K19',unclose,'number');
+  return xml;
+}
+
+function rewriteCategoryDistribution(xml,rows){
+  const categories=['FW','HW','ME','Field','Manual','SW','Etc'];
+  const total=(rows||[]).length;
+  categories.forEach((cat,index)=>{
+    const r=3+index;
+    const count=summaryCount(rows,'','',cat);
+    xml=replaceCompanyWorksheetCellKeepStyle(xml,'B'+r,count,'number');
+    xml=replaceCompanyWorksheetCellKeepStyle(xml,'C'+r,total?count/total:0,'number');
+  });
+  xml=replaceCompanyWorksheetCellKeepStyle(xml,'B10',total,'number');
+  xml=replaceCompanyWorksheetCellKeepStyle(xml,'C10',total?1:0,'number');
+  return xml;
+}
+
+async function exportExcel(btn){
+  if(!window.JSZip){ alert('Excel 템플릿 처리 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해주세요.'); return; }
+  const restoreBtn=setBtnBusy(btn,'백업 생성 중…');
+  try{
+    const selectedModel=$('f_model')?.value||'';
+    const selectedGroup=$('f_group')?.value||'';
+    const sourceRows=selectedModel
+      ? getData().filter(i=>String(i.model||'').trim()===selectedModel)
+      : selectedGroup ? projectIssueRows(selectedGroup) : getData();
+    const rows=companyBackupRows(sourceRows);
+    const ids=companyIssueIds(rows);
+    const zip=await JSZip.loadAsync(base64ToUint8Array(COMPANY_ISSUE_TEMPLATE_BASE64));
+    await removeTotalIssueTemplateImages(zip);
+    let sheetXml=await zip.file('xl/worksheets/sheet2.xml').async('string');
+
+    const sheetDataMatch=sheetXml.match(/<sheetData>[\s\S]*?<\/sheetData>/);
+    if(!sheetDataMatch) throw new Error('회사 템플릿의 Total Issue 시트를 찾을 수 없습니다.');
+    const row1=(sheetDataMatch[0].match(/<row r="1"[\s\S]*?<\/row>/)||[])[0];
+    if(!row1) throw new Error('회사 템플릿의 Header 행을 찾을 수 없습니다.');
+
+    const dataRows=[];
+    const metaRows=[];
+
+    rows.forEach((i,index)=>{
+      const r=index+2;
+      const companyId=ids[index];
+      const styles=totalIssueCellStyles(i.status||'');
+      // 회사 양식 컬럼 매핑
+      // Submitted Date = 이슈 최초 등록일 / QA Closed Date = Close 변경일 / Released Version = QA Closed Version
+      const submitted=excelSerialDate(issueSubmittedDate(i));
+      const closed=excelSerialDate(i.closed_date||'');
+      const values=[
+        companyId, i.project||'', i.severity||'', i.status||'', i.title||'',
+        i.version||'', i.closed_version||'', submitted, i.reporter||'', '', closed, '', '',
+        i.assignee||'', companyDescriptions(i), companyActivityRemark(i,'개발팀'), companyActivityRemark(i,'개발검증팀'), ''
+      ];
+      const cells=[
+        companyCell('A'+r,styles.A,values[0]), companyCell('B'+r,styles.B,values[1]), companyCell('C'+r,styles.C,values[2]),
+        companyCell('D'+r,styles.D,values[3]), companyCell('E'+r,styles.E,values[4]), companyCell('F'+r,styles.F,values[5]),
+        companyCell('G'+r,styles.G,values[6]), companyCell('H'+r,styles.H,values[7],values[7]===''?'blank':'number'),
+        companyCell('I'+r,styles.I,values[8]), companyCell('J'+r,styles.J,'','blank'),
+        companyCell('K'+r,styles.K,values[10],values[10]===''?'blank':'number'),
+        companyCell('L'+r,styles.L,values[10]!==''?`IF(OR(H${r}="",K${r}=""),"",DATEDIF(H${r},K${r},"D"))`:'',values[10]!==''?'formula':'blank'),
+        companyCell('M'+r,styles.M,'','blank'), companyCell('N'+r,styles.N,values[13]), companyCell('O'+r,styles.O,values[14]),
+        companyCell('P'+r,styles.P,values[15]), companyCell('Q'+r,styles.Q,values[16]), companyCell('R'+r,styles.R,'','blank')
+      ].join('');
+      dataRows.push(`<row r="${r}" spans="1:18" s="122" customFormat="1" ht="${estimateCompanyRowHeight(values)}" customHeight="1">${cells}</row>`);
+      metaRows.push({excel_id:companyId,no:i.no||'',model:i.model||'',project_name:modelProjectName(i.model)||'',created:i.created||'',submitted_date:issueSubmittedDate(i),updated:i.updated||''});
+    });
+
+    const lastRow=Math.max(1,rows.length+1);
+    sheetXml=sheetXml.replace(/<sheetData>[\s\S]*?<\/sheetData>/,`<sheetData>${row1}${dataRows.join('')}</sheetData>`);
+    sheetXml=sheetXml.replace(/<dimension ref="A1:W\d+"\/>/,`<dimension ref="A1:W${lastRow}"/>`);
+    sheetXml=sheetXml.replace(/ filterMode="1"/,'');
+    sheetXml=sheetXml.replace(/<autoFilter ref="A1:W\d+"([^>]*)>[\s\S]*?<\/autoFilter>/,`<autoFilter ref="A1:W${lastRow}"$1/>`);
+    sheetXml=sheetXml.replace(/<autoFilter ref="A1:W\d+"([^>]*)\/>/,`<autoFilter ref="A1:W${lastRow}"$1/>`);
+    sheetXml=setTotalIssueOpenPosition(sheetXml,lastRow);
+    zip.file('xl/worksheets/sheet2.xml',sheetXml);
+
+    // Summary는 현재 보고 있는 범위 기준으로 회사 양식을 유지하면서 내용을 갱신합니다.
+    let summaryXml=await zip.file('xl/worksheets/sheet1.xml').async('string');
+    const summaryTitle=selectedModel ? `${selectedModel} Issue Status` : selectedGroup ? `${selectedGroup} Issue Status` : 'Issue Status';
+    const latestDate=latestIssueExcelDate(rows);
+    summaryXml=replaceCompanyWorksheetCell(summaryXml,'A12',companyCell('A12',202,summaryTitle));
+    summaryXml=replaceCompanyWorksheetCell(summaryXml,'F14',companyCell('F14',214,latestDate,latestDate===''?'blank':'number'));
+    summaryXml=replaceCompanyWorksheetCell(summaryXml,'F15',companyCell('F15',211,'','blank'));
+
+    // 전체 이슈 목록 Summary에서는 특정 FW 버전을 대표값처럼 보이지 않도록 FW 행을 비웁니다.
+    if(!selectedModel){
+      summaryXml=replaceCompanyWorksheetCell(summaryXml,'B15',companyCell('B15',5,'','blank'));
+      summaryXml=replaceCompanyWorksheetCell(summaryXml,'C15',companyCell('C15',207,'','blank'));
+      summaryXml=replaceCompanyWorksheetCell(summaryXml,'D15',companyCell('D15',207,'','blank'));
+    }
+
+    // Summary의 Total Issue Status + 카테고리별 집계값 전체를 현재 웹 데이터로 교체합니다.
+    summaryXml=rewriteSummaryIssueStatus(summaryXml,rows);
+    zip.file('xl/worksheets/sheet1.xml',summaryXml);
+
+    // 회사 원본의 나머지 통계 시트도 현재 웹 데이터 기준으로 갱신합니다.
+    if(zip.file('xl/worksheets/sheet3.xml')){
+      let x=await zip.file('xl/worksheets/sheet3.xml').async('string');
+      zip.file('xl/worksheets/sheet3.xml',rewriteReleaseVersionOpenIssue(x,rows));
+    }
+    if(zip.file('xl/worksheets/sheet4.xml')){
+      let x=await zip.file('xl/worksheets/sheet4.xml').async('string');
+      zip.file('xl/worksheets/sheet4.xml',rewriteFixRateSheet(x,rows,ids));
+    }
+    if(zip.file('xl/worksheets/sheet5.xml')){
+      let x=await zip.file('xl/worksheets/sheet5.xml').async('string');
+      zip.file('xl/worksheets/sheet5.xml',rewriteSeverityDistribution(x,rows));
+    }
+    if(zip.file('xl/worksheets/sheet6.xml')){
+      let x=await zip.file('xl/worksheets/sheet6.xml').async('string');
+      zip.file('xl/worksheets/sheet6.xml',rewriteCategoryDistribution(x,rows));
+    }
+
+    let workbookXml=await zip.file('xl/workbook.xml').async('string');
+    workbookXml=workbookXml.replace(/'Total Issue'!\$A\$1:\$W\$\d+/g,`'Total Issue'!$A$1:$W$${lastRow}`);
+    workbookXml=workbookXml.replace(/<calcPr([^>]*)\/>/, (m,attrs)=>{
+      let a=attrs.replace(/\s(calcMode|fullCalcOnLoad|forceFullCalc)="[^"]*"/g,'');
+      return `<calcPr${a} calcMode="auto" fullCalcOnLoad="1" forceFullCalc="1"/>`;
+    });
+    zip.file('xl/workbook.xml',workbookXml);
+
+    // 기존 계산 체인은 Total Issue 행 교체 후 오래된 셀을 가리킬 수 있으므로 제거하고 Excel이 다시 계산하도록 합니다.
+    if(zip.file('xl/calcChain.xml')) zip.remove('xl/calcChain.xml');
+    if(zip.file('xl/_rels/workbook.xml.rels')){
+      let rels=await zip.file('xl/_rels/workbook.xml.rels').async('string');
+      rels=rels.replace(/<Relationship[^>]+Type="http:\/\/schemas\.openxmlformats\.org\/officeDocument\/2006\/relationships\/calcChain"[^>]*\/>/g,'');
+      zip.file('xl/_rels/workbook.xml.rels',rels);
+    }
+    if(zip.file('[Content_Types].xml')){
+      let types=await zip.file('[Content_Types].xml').async('string');
+      types=types.replace(/<Override[^>]+PartName="\/xl\/calcChain\.xml"[^>]*\/>/g,'');
+      zip.file('[Content_Types].xml',types);
+    }
+
+    const corePath='docProps/core.xml';
+    if(zip.file(corePath)){
+      let coreXml=await zip.file(corePath).async('string');
+      const scope=selectedModel?'model':selectedGroup?'project':'all';
+      const scopedRegistry=selectedModel
+        ? modelsCache.filter(m=>m.name===selectedModel)
+        : selectedGroup ? modelsCache.filter(m=>m.project_name===selectedGroup) : modelsCache;
+      const scopedProjects=selectedModel
+        ? [modelProjectName(selectedModel)].filter(Boolean)
+        : selectedGroup ? [selectedGroup] : allProjectNames();
+      coreXml=injectBackupMetadata(coreXml,{
+        version:4,scope,project:selectedGroup||modelProjectName(selectedModel)||'',model:selectedModel||'',exported_at:now(),issue_count:rows.length,
+        projects:scopedProjects,model_registry:scopedRegistry,models:scopedRegistry.map(m=>m.name),rows:metaRows
+      });
+      zip.file(corePath,coreXml);
+    }
+
+    const blob=await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',compression:'DEFLATE'});
+    const scopeName=selectedModel||selectedGroup||'All';
+    const safeName=String(scopeName).replace(/[\\/:*?"<>|]/g,'_');
+    const day=now().slice(0,10).replace(/-/g,'');
+    download(blob,`QA_Issue_List_${safeName}_${day}.xlsx`);
+  }catch(e){
+    console.error(e);
+    alert('회사 Issue List 형식으로 Excel 백업 중 오류가 발생했습니다.\n'+(e?.message||e));
+  }finally{
+    restoreBtn();
+  }
+}
+
+/* ---------- JSON 전체 백업 / 복원 (손실 없는 백업) ----------
+   Excel 백업은 회사 보고 양식에 맞추기 위해 설명 텍스트를 파싱/재조립하므로
+   드물게 서식이 어긋나면 필드가 깨질 수 있습니다.
+   JSON 백업은 현재 화면 범위의 Issue/Model/Project 원본 데이터를 그대로 담아
+   내보내고, 복원 시에도 그대로 재삽입하므로 형식 손실이 없습니다.
+   (단, 첨부파일 자체는 포함되지 않습니다 — Excel 백업과 동일한 제약) */
+const JSON_BACKUP_TYPE='QA_ISSUE_LIST_JSON_BACKUP';
+async function exportJSONBackup(btn){
+  const restoreBtn=setBtnBusy(btn,'백업 생성 중…');
+  try{
+    const selectedModel=$('f_model')?.value||'';
+    const selectedGroup=$('f_group')?.value||'';
+    const rows=selectedModel
+      ? getData().filter(i=>String(i.model||'').trim()===selectedModel)
+      : selectedGroup ? projectIssueRows(selectedGroup) : getData();
+    const scope=selectedModel?'model':selectedGroup?'project':'all';
+    const scopedRegistry=selectedModel
+      ? modelsCache.filter(m=>m.name===selectedModel)
+      : selectedGroup ? modelsCache.filter(m=>m.project_name===selectedGroup) : modelsCache;
+    const scopedProjects=selectedModel
+      ? [modelProjectName(selectedModel)].filter(Boolean)
+      : selectedGroup ? [selectedGroup] : allProjectNames();
+    const payload={
+      type:JSON_BACKUP_TYPE,version:4,scope,
+      project:selectedGroup||modelProjectName(selectedModel)||'',
+      model:selectedModel||'',
+      exported_at:now(),issue_count:rows.length,
+      projects:scopedProjects,model_registry:scopedRegistry,
+      issues:rows
+    };
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    const scopeName=selectedModel||selectedGroup||'All';
+    const safeName=String(scopeName).replace(/[\\/:*?"<>|]/g,'_');
+    const day=now().slice(0,10).replace(/-/g,'');
+    download(blob,`QA_Issue_List_Backup_${safeName}_${day}.json`);
+  }catch(e){
+    console.error(e);
+    alert('JSON 백업 중 오류가 발생했습니다.\n'+(e?.message||e));
+  }finally{
+    restoreBtn();
+  }
+}
+function triggerJSONRestore(){
+  $('restoreJsonFile').value='';
+  $('restoreJsonFile').click();
+}
+async function restoreJSON(){
+  const file=$('restoreJsonFile').files[0];
+  if(!file){alert('복원할 JSON 백업 파일을 선택하세요.');return}
+  try{
+    const text=await file.text();
+    let payload;
+    try{ payload=JSON.parse(text); }catch(e){ throw new Error('JSON 형식이 아니거나 파일이 손상되었습니다.'); }
+    if(!payload || payload.type!==JSON_BACKUP_TYPE || !Array.isArray(payload.issues)){
+      throw new Error('QA Issue List에서 내보낸 JSON 백업 파일이 아닙니다.');
+    }
+    const restored=payload.issues.map(r=>({...r}));
+    if(!restored.length) throw new Error('복원할 Issue 데이터가 없습니다.');
+    validateRestoreRows(restored);
+
+    const currentProject=$('f_group')?.value||'';
+    const currentModel=$('f_model')?.value||'';
+    const uniqueModels=[...new Set(restored.map(r=>String(r.model||'').trim()).filter(Boolean))];
+    const metaScope=['model','project','all'].includes(payload.scope)?payload.scope:'';
+    const scope=metaScope || (currentModel?'model':currentProject?'project':uniqueModels.length===1?'model':'all');
+    const targetModel=String(payload.model||currentModel||(scope==='model'?uniqueModels[0]:'')||'').trim();
+    const metaProject=String(payload.project||'').trim();
+    const knownModelProject=targetModel?modelProjectName(targetModel):'';
+    const suggestedProject=metaProject||currentProject||knownModelProject||DEFAULT_PROJECT_GROUPS[0];
+    const backupMeta={version:4,scope,project:metaProject,model:payload.model||'',projects:payload.projects||[],model_registry:payload.model_registry||[]};
+    openRestorePreview({fileName:file.name,rows:restored,backupMeta,scope,targetModel,targetProject:metaProject||currentProject,metaProject,suggestedProject,isJson:true});
+  }catch(err){
+    console.error(err);
+    if($('restoreJsonFile')) $('restoreJsonFile').value='';
+    alert('JSON 복원 파일을 확인해주세요.\n'+(err?.message||err));
+  }
+}
+
+function triggerExcelRestore(){
+  $('restoreFile').value='';
+  $('restoreFile').accept='.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel';
+  $('restoreFile').click();
+}
+
+let pendingRestore=null;
+function closeRestorePreview(){
+  $('restorePreviewModal')?.classList.remove('show');
+  $('restoreProgress')?.classList.remove('show');
+  const btn=$('restoreApplyBtn'); if(btn) btn.disabled=false;
+  pendingRestore=null;
+  if($('restoreFile')) $('restoreFile').value='';
+  if($('restoreJsonFile')) $('restoreJsonFile').value='';
+}
+function openRestorePreview(info){
+  pendingRestore=info;
+  const models=[...new Set(info.rows.map(r=>String(r.model||'').trim()).filter(Boolean))];
+  const reporters=[...new Set(info.rows.map(r=>String(r.reporter||'').trim()).filter(Boolean))];
+  $('restorePreviewSummary').innerHTML=`
+    <b>파일</b><span>${esc(info.fileName)}</span>
+    <b>Issue</b><span>${info.rows.length}건</span>
+    <b>Model</b><span>${esc(models.join(', ')||'-')}</span>
+    <b>Reporter</b><span>${esc(reporters.join(', ')||'-')}</span>`;
+  const targetWrap=$('restoreTargetWrap');
+  const targetSelect=$('restoreTargetProject');
+  const needsProject=!info.metaProject && info.scope!=='all';
+  if(targetWrap && targetSelect){
+    targetWrap.style.display=needsProject?'':'none';
+    const projects=[...new Set([...DEFAULT_PROJECT_GROUPS,...allProjectNames()])].sort(projectNameCompare);
+    targetSelect.innerHTML=projects.map(p=>`<option value="${esc(p)}" ${p===info.suggestedProject?'selected':''}>${esc(p)}</option>`).join('');
+  }
+  const targetText=info.scope==='model' ? `선택한 Model의 기존 Issue를 교체합니다.` : info.scope==='project' ? `선택한 프로젝트의 기존 Issue를 교체합니다.` : `공유 DB의 전체 Issue를 교체합니다.`;
+  const formatNote=info.isJson
+    ? 'JSON 백업은 원본 데이터를 그대로 복원하지만, Attachment 파일 자체는 포함되지 않습니다.'
+    : 'Excel 백업에는 Attachment 파일 자체가 포함되지 않습니다.';
+  $('restorePreviewWarning').innerHTML=`<b>${esc(targetText)}</b> 복원을 실행하면 되돌릴 수 없으니, 아래 파일명·Issue 수·Model을 다시 확인해주세요.<br>${esc(formatNote)}`;
+  $('restorePreviewModal')?.classList.add('show');
+}
+async function applyPendingRestore(){
+  const info=pendingRestore;
+  if(!info) return;
+  const btn=$('restoreApplyBtn'); if(btn) btn.disabled=true;
+  $('restoreProgress')?.classList.add('show');
+  try{
+    const chosenProject=info.metaProject || $('restoreTargetProject')?.value || info.suggestedProject || '';
+    let rows=info.rows.map(r=>({...r}));
+    if(info.scope==='model'){
+      const targetModel=info.targetModel || rows[0]?.model || '';
+      rows=rows.map(r=>({...r,model:targetModel||r.model}));
+      await replaceModelIssues(targetModel,rows);
+      if(info.backupMeta?.version>=3) await restoreHierarchyFromBackup(info.backupMeta,rows,'model',targetModel,chosenProject);
+      else{
+        if(chosenProject) await ensureProjectRegistryName(chosenProject);
+        await restoreModelRegistry([targetModel],false);
+        if(chosenProject && hierarchySchemaReady) await sb.from('models').update({project_name:chosenProject}).eq('name',targetModel);
+      }
+    }else if(info.scope==='project'){
+      const targetProject=chosenProject || info.targetProject;
+      if(!targetProject) throw new Error('복원할 프로젝트를 선택해주세요.');
+      const names=(info.backupMeta?.model_registry||[]).filter(r=>String(r.project_name||'').trim()===String(info.targetProject||targetProject)).map(r=>String(r.name||'').trim()).filter(Boolean);
+      await replaceProjectIssues(targetProject,rows,names);
+      if(info.backupMeta?.version>=3) await restoreHierarchyFromBackup(info.backupMeta,rows,'project',targetProject);
+      else{
+        await ensureProjectRegistryName(targetProject);
+        await restoreModelRegistry(rows.map(r=>r.model),false);
+        if(hierarchySchemaReady){
+          for(const name of [...new Set(rows.map(r=>r.model).filter(Boolean))]) await sb.from('models').update({project_name:targetProject}).eq('name',name);
+        }
+      }
+    }else{
+      await replaceAllIssues(rows);
+      if(info.backupMeta?.version>=3) await restoreHierarchyFromBackup(info.backupMeta,rows,'all','');
+      else await restoreModelRegistry(rows.map(r=>r.model),false);
+    }
+    dashboardCacheDirty=true;
+    await loadIssues(); await loadProjectGroups(); await loadModels();
+    await normalizeExistingIssueNumbers();
+    renderAll();
+    closeRestorePreview();
+    alert(`복원이 완료되었습니다.\nIssue ${rows.length}건`);
+  }catch(err){
+    console.error(err);
+    $('restoreProgress')?.classList.remove('show');
+    if(btn) btn.disabled=false;
+    alert('복원 실패: '+(err?.message||err));
+  }
+}
+async function restoreExcel(){
+  const file=$('restoreFile').files[0];
+  if(!file){alert('복원할 회사 Issue Excel(.xlsx/.xls) 파일을 선택하세요.');return}
+  if(!window.XLSX){alert('Excel 라이브러리를 불러오지 못했습니다.');return}
+  try{
+    const arr=await file.arrayBuffer();
+    const wb=XLSX.read(arr,{type:'array',cellDates:true});
+    if(!wb.SheetNames.includes('Total Issue')) throw new Error('Total Issue 시트가 없습니다.');
+    const ws=wb.Sheets['Total Issue'];
+    const values=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:true});
+    if(!values.length) throw new Error('Total Issue 시트가 비어 있습니다.');
+    const header=values[0].map(v=>String(v).replace(/\s+/g,' ').trim());
+    const idx=name=>header.indexOf(name.replace(/\s+/g,' ').trim());
+    const required=['Issue ID','Catagory','Severity','Status','Headline','Based Version','Released Version','Submitted Date','Submitter','Owner','Descriptions'];
+    const missing=required.filter(h=>idx(h)<0);
+    if(missing.length) throw new Error('필수 항목이 없습니다: '+missing.join(', '));
+    const at=(r,name)=>{const n=idx(name);return n>=0?r[n]:''};
+
+    let backupMeta=null;
+    if(window.JSZip && String(file.name||'').toLowerCase().endsWith('.xlsx')){
+      try{const zip=await JSZip.loadAsync(arr);if(zip.file('docProps/core.xml')) backupMeta=extractBackupMetadata(await zip.file('docProps/core.xml').async('string'));}catch(e){console.warn('웹 백업 메타데이터 없음',e)}
+    }
+    const metaMap=new Map((backupMeta?.rows||[]).map(x=>[String(x.excel_id||''),x]));
+    let summaryModel='',summaryReporter='';
+    const summary=wb.Sheets['Summary'];
+    if(summary){
+      const title=String(summary['A12']?.v||'').trim();
+      const mm=title.match(/^(.+?)\s+Issue Status$/i);
+      if(mm && !['QA','Issue'].includes(mm[1])) summaryModel=mm[1].trim();
+      for(const ref of ['F15','G15','E15']){const v=String(summary[ref]?.v||'').trim();if(v){summaryReporter=v;break;}}
+    }
+    const restored=values.slice(1).filter(r=>String(at(r,'Issue ID')||'').trim()).map(r=>{
+      const excelId=String(at(r,'Issue ID')||'').trim();
+      const meta=metaMap.get(excelId)||null;
+      const desc=parseCompanyDescriptions(at(r,'Descriptions'));
+      const base=String(desc['Comments']||at(r,'Remark')||'');
+      const acts=[...remarkToActivities(at(r,'R&D Remark'),'개발팀'),...remarkToActivities(at(r,'QA Remark'),'개발검증팀')].sort((a,b)=>String(a.created_at).localeCompare(String(b.created_at)));
+      const submitted=parseSimpleDate(at(r,'Submitted Date'));
+      // 회사 Excel의 Released Version은 웹의 QA Closed Version과 1:1 매핑합니다.
+      const qaClosedVersion=String(at(r,'Released Version')??'').trim();
+      const idModel=(excelId.match(/^(.*)_\d{4,}$/)?.[1]||excelId.match(/^(.*)-\d+$/)?.[1]||'').trim();
+      return {no:String(meta?.no||excelId).trim(),project:String(at(r,'Catagory')||'FW').trim(),model:String(meta?.model||idModel||summaryModel||'-').trim(),title:String(at(r,'Headline')||desc['Headline']||'').trim(),status:String(at(r,'Status')||'Open').trim(),severity:String(at(r,'Severity')||'Average').trim(),assignee:String(at(r,'Owner')||'미지정').trim(),reporter:String(at(r,'Submitter')||summaryReporter||'미지정').trim(),version:String(at(r,'Based Version')||'').trim(),steps:String(desc['Operation Step']||''),expected:String(desc['Expected Result']||''),result:String(desc['Test Result']||''),rate:String(desc['Occurrence Rate']||'-'),comments:serializeIssueComments(base,acts),submitted_date:submitted,closed_date:parseSimpleDate(at(r,'QA Closed Date')),closed_version:qaClosedVersion,updated:String(meta?.updated||now()),created:String(meta?.created||meta?.submitted_date||submitted||'')};
+    }).filter(r=>r.no);
+    if(!restored.length) throw new Error('복원할 Issue 데이터가 없습니다.');
+    validateRestoreRows(restored);
+
+    const currentProject=$('f_group')?.value||'';
+    const currentModel=$('f_model')?.value||'';
+    const uniqueModels=[...new Set(restored.map(r=>r.model).filter(m=>m&&m!=='-'))];
+    const metaScope=['model','project','all'].includes(backupMeta?.scope)?backupMeta.scope:'';
+    // 웹에서 만든 백업은 저장된 scope를 그대로 사용합니다.
+    // 일반 회사 Excel은 파일 안에 Model이 1개라는 이유만으로 Model 교체 범위로 추정하지 않습니다.
+    // 사용자가 현재 Model 화면에서 복원한 경우에만 Model 범위, 프로젝트 화면이면 프로젝트 범위,
+    // 그 외에는 전체 Issue 복원으로 명확하게 처리합니다.
+    const scope=metaScope || (currentModel?'model':currentProject?'project':'all');
+    const targetModel=String(backupMeta?.model||currentModel||(scope==='model'?uniqueModels[0]:'')||'').trim();
+    const metaProject=String(backupMeta?.project||'').trim();
+    const knownModelProject=targetModel?modelProjectName(targetModel):'';
+    const suggestedProject=metaProject||currentProject||knownModelProject||DEFAULT_PROJECT_GROUPS[0];
+    openRestorePreview({fileName:file.name,rows:restored,backupMeta,scope,targetModel,targetProject:metaProject||currentProject,metaProject,suggestedProject});
+  }catch(err){
+    console.error(err);
+    if($('restoreFile')) $('restoreFile').value='';
+    alert('Excel 복원 파일을 확인해주세요.\n'+(err?.message||err));
+  }
+}
+function download(blob,name){
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)
+}
+// 백업 생성 중에는 버튼을 비활성화하고 진행 상태를 표시해, 중복 클릭과
+// "멈춘 것 같다"는 오인을 방지합니다. 반환된 함수를 finally에서 호출하면 원상복구됩니다.
+function setBtnBusy(btn,busyText){
+  if(!btn) return ()=>{};
+  const original=btn.textContent;
+  btn.disabled=true;
+  btn.textContent=busyText;
+  return ()=>{btn.disabled=false;btn.textContent=original;};
+}
+function renderAll(){renderDashboard();refreshProjectGroupFilter();refreshModelFilter();refreshCategoryFilter();refreshIssueModelInputs();renderProjectIssueTree();renderProjectManager();renderIssueSidebarTree();renderIssues();scheduleDashboardCacheRefresh()}
+
+
+function syncClosedVersionField(prefix){
+  const statusEl=$(prefix+'_status');
+  const versionEl=$(prefix+'_closed_version');
+  if(!statusEl || !versionEl) return;
+
+  const isClose=statusEl.value==='Close';
+  versionEl.disabled=!isClose;
+  versionEl.style.background=isClose?'#fff':'#f8fafc';
+
+  if(!isClose) versionEl.value='';
+}
+
+$('i_status')?.addEventListener('change',()=>syncClosedVersionField('i'));
+$('e_status')?.addEventListener('change',()=>syncClosedVersionField('e'));
+syncClosedVersionField('i');
+syncActivityAuthorList();
+
+async function init(){
+  const badge=$('connStatus');
+  try{
+    if(!isConfigured()){
+      badge.textContent='설정 필요';
+      badge.style.background='#fee2e2';badge.style.color='#b91c1c';
+      return;
+    }
+    hierarchySchemaReady=true;
+    hierarchySchemaMessage='';
+    // 먼저 서버에 저장된 집계값을 읽어 대시보드/Storage 숫자를 즉시 표시합니다.
+    await loadServerCaches();
+    await Promise.all([loadProjectGroups(),loadModels()]);
+    await ensureDefaultProjectGroups();
+    await loadIssues();
+    await normalizeExistingIssueNumbers();
+    renderAll();
+    subscribeRealtime();
+    // Storage 전체 탐색은 매 접속/1분마다 하지 않습니다. 캐시가 없는 첫 실행에서만 한 번 보정합니다.
+    if(!storageCacheData) setTimeout(()=>calculateStorageUsage().catch(()=>{}),500);
+    badge.textContent='Online · Shared DB';
+    badge.style.background='#dcfce7';badge.style.color='#166534';
+  }catch(e){
+    showFatalError('초기화 실패: '+e.message);
+  }
+}
+init();
+
+
+/* ===== v56: v55 누락 함수 복구 ===== */
+function openDetail(no){
+  const i=getData().find(x=>x.no===no);if(!i)return;
+  currentNo=no;
+  $('d_no').textContent=i.no;
+  $('d_title').textContent=i.title;
+  $('d_meta').textContent=`${i.project} · 등록 ${i.created} · 수정 ${i.updated}`;
+  $('d_steps').textContent=i.steps||'-';
+  $('d_expected').textContent=i.expected||'-';
+  $('d_result').textContent=i.result||'-';
+  $('d_comments').textContent=splitIssueComments(i.comments).base||'-';
+  $('detailSide').innerHTML=`
+    <div class="kv"><b>Status</b><span>${statusBadge(i.status)}</span></div>
+    <div class="kv"><b>Severity</b><span>${severityBadge(i.severity)}</span></div>
+    <div class="kv"><b>Assignee</b><span>${esc(i.assignee)}</span></div>
+    <div class="kv"><b>Reporter</b><span>${esc(i.reporter)}</span></div>
+    <div class="kv"><b>Project</b><span>${esc(modelProjectName(i.model)||'미분류')}</span></div>
+    <div class="kv"><b>Model</b><span>${esc(i.model)}</span></div>
+    <div class="kv"><b>Version</b><span>${esc(i.version)}</span></div>
+    <div class="kv"><b>Submitted Date</b><span>${esc(issueSubmittedDate(i)||'-')}</span></div>
+    <div class="kv"><b>QA Closed Date</b><span>${esc(i.closed_date||'-')}</span></div>
+    <div class="kv"><b>QA Closed Version</b><span>${esc(i.closed_version||'-')}</span></div>
+    <div class="kv"><b>Rate</b><span>${esc(i.rate)}</span></div>`;
+  $('activity_status').value=i.status==='Open' ? '' : i.status;
+  $('activity_closed_version').value=i.status==='Close' ? (i.closed_version||'') : '';
+  syncActivityClosedVersion();
+
+  renderDetailAttachments(no);
+  renderActivities(no);
+  showView('detail');
+}
+
+function openEditPage(){
+  const i=getData().find(x=>x.no===currentNo);if(!i)return;
+  $('edit_no_text').textContent='No. '+i.no;
+  $('e_project').value=i.project;
+  $('e_title').value=i.title;
+  $('e_status').value=i.status;
+  $('e_severity').value=i.severity;
+  $('e_assignee').value=i.assignee;
+  $('e_reporter').value=i.reporter;
+  refreshIssueProjectInputs();
+  const parentProject=modelProjectName(i.model)||'';
+  if($('e_group')) $('e_group').value=parentProject;
+  refreshIssueModelForPrefix('e');
+  $('e_model').value=i.model;
+  $('e_version').value=i.version;
+  $('e_submitted_date').value=issueSubmittedDate(i);
+  $('e_closed_date').value=i.closed_date||'';
+  $('e_closed_version').value=i.closed_version||'';
+  syncClosedVersionField('e');
+  $('e_files').value='';
+  renderEditAttachments(i.no);
+  $('e_steps').value=i.steps;
+  $('e_expected').value=i.expected;
+  $('e_result').value=i.result;
+  $('e_rate').value=i.rate;
+  $('e_comments').value=splitIssueComments(i.comments).base||'';
+  showView('edit');
+}
+
+async function saveEdit(){
+  const prev=getData().find(x=>x.no===currentNo);if(!prev)return;
+  if(!$('e_model').value){alert('Model을 선택하세요.');return}
+  const previousStatus=prev.status;
+  const newStatus=$('e_status').value;
+  let closed_date=prev.closed_date||'';
+  let closed_version=prev.closed_version||'';
+  if(newStatus==='Close' && previousStatus!=='Close') closed_date=now();
+  if(newStatus==='Close') closed_version=$('e_closed_version').value.trim();
+  if(newStatus!=='Close'){
+    if(previousStatus==='Close') closed_date='';
+    closed_version='';
+  }
+  const patch={
+    project:$('e_project').value,
+    title:$('e_title').value.trim(),
+    status:newStatus,
+    severity:$('e_severity').value,
+    assignee:$('e_assignee').value.trim()||'미지정',
+    reporter:$('e_reporter').value||'미지정',
+    model:$('e_model').value.trim()||'-',
+    version:$('e_version').value.trim()||'-',
+    steps:$('e_steps').value.trim(),
+    expected:$('e_expected').value.trim(),
+    result:$('e_result').value.trim(),
+    rate:$('e_rate').value.trim()||'-',
+    comments:serializeIssueComments($('e_comments').value.trim(),splitIssueComments(prev.comments).activities),
+    submitted_date:issueSubmittedDate(prev),
+    closed_date:closed_date,
+    closed_version:closed_version,
+    updated:now()
+  };
+  await updateIssueRow(currentNo,patch);
+  await saveAttachments(currentNo,$('e_files').files);
+  await loadIssues();
+  renderAll();openDetail(currentNo);
+}
+
+async function deleteIssue(){
+  if(!currentNo||!confirm(currentNo+' 이슈를 삭제할까요?'))return;
+  await deleteIssueAttachments(currentNo);
+  await deleteIssueRow(currentNo);
+  currentNo=null;
+  await loadIssues();
+  renderAll();showView('issues');
+}
+
+function exportCSV(){
+  const a=filtered();
+  const h=['No.','Catagory','Headline','Status','Severity','Assignee','Reporter','Model','Version','Operation Step','Expected Result','Test Result','Occurrence Rate','Comments','Created','Updated'];
+  const rows=a.map(i=>[i.no,i.project,i.title,i.status,i.severity,i.assignee,i.reporter,i.model,i.version,i.steps,i.expected,i.result,i.rate,i.comments,i.created,i.updated]);
+  const csv='\uFEFF'+[h,...rows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  download(new Blob([csv],{type:'text/csv;charset=utf-8'}),'QA_Issue_List_이슈리스트.csv');
+}
+
+function xmlEscape(v){
+  return String(v??'')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&apos;');
+}
+
+function companyDescriptions(i){
+  const parsed=splitIssueComments(i.comments);
+  return [
+    'Headline : '+(i.title||''),
+    'Operation Step : \n'+(i.steps||''),
+    'Expected Result : '+(i.expected||''),
+    'Test Result : '+(i.result||''),
+    'Occurence Rate : '+(i.rate||''),
+    'Comments : '+(parsed.base||'')
+  ].join('\n');
+}
+
+function compactActivityDate(value){
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime())) return '';
+  return String(d.getFullYear())+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+}
+
+function dottedActivityDate(value){
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime())) return '';
+  return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0');
+}
+
+function companyActivityRemark(i,team){
+  const rows=splitIssueComments(i.comments).activities.filter(a=>(a.team||'')===team);
+  return rows.map(a=>{
+    const lines=[];
+    if(team==='개발팀') lines.push('['+(compactActivityDate(a.created_at)||'')+'_'+(a.author||'')+']');
+    else lines.push(dottedActivityDate(a.created_at)||'');
+    if(a.body) lines.push(a.body);
+    if(a.old_status && a.new_status && a.old_status!==a.new_status) lines.push('Status : '+a.old_status+' → '+a.new_status);
+    return lines.filter(Boolean).join('\n');
+  }).join('\n\n');
+}
+
+function excelSerialDate(v){
+  const s=parseSimpleDate(v);
+  if(!s) return '';
+  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(!m) return '';
+  const utc=Date.UTC(Number(m[1]),Number(m[2])-1,Number(m[3]));
+  return Math.floor(utc/86400000)+25569;
+}
+
+function xmlText(v){
+  return String(v??'')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+}
+
+function companyIssueIds(rows){
+  const counts={};
+  return rows.map(i=>{
+    const model=String(i.model||'미지정').trim()||'미지정';
+    counts[model]=(counts[model]||0)+1;
+    return model+'_'+String(counts[model]).padStart(4,'0');
+  });
+}
+
+function companyCell(ref,style,value,type='text'){
+  if(type==='blank' || value===null || value===undefined || value==='') return `<c r="${ref}" s="${style}"/>`;
+  if(type==='number') return `<c r="${ref}" s="${style}"><v>${value}</v></c>`;
+  if(type==='formula') return `<c r="${ref}" s="${style}"><f>${xmlText(value)}</f><v></v></c>`;
+  return `<c r="${ref}" s="${style}" t="inlineStr"><is><t xml:space="preserve">${xmlText(value)}</t></is></c>`;
+}
+
+function replaceCompanyWorksheetCell(xml,ref,cellXml){
+  const start=xml.indexOf(`<c r="${ref}"`);
+  if(start<0) return xml;
+  const tagEnd=xml.indexOf('>',start);
+  if(tagEnd<0) return xml;
+  if(xml.charAt(tagEnd-1)==='/'){
+    return xml.slice(0,start)+cellXml+xml.slice(tagEnd+1);
+  }
+  const closeEnd=xml.indexOf('</c>',tagEnd);
+  if(closeEnd<0) return xml;
+  return xml.slice(0,start)+cellXml+xml.slice(closeEnd+4);
+}
+
+function latestIssueExcelDate(rows){
+  let latest='';
+  let latestTime=-1;
+  (rows||[]).forEach(i=>{
+    const d=issueSubmittedDate(i);
+    if(!d) return;
+    const t=new Date(d+'T00:00:00').getTime();
+    if(!Number.isNaN(t) && t>latestTime){latestTime=t;latest=d;}
+  });
+  return excelSerialDate(latest);
+}
+
+function replaceCompanyWorksheetCellKeepStyle(xml,ref,value,type='number'){
+  const re=new RegExp(`<c\\s+r=\"${ref}\"[^>]*>`);
+  const m=xml.match(re);
+  let style='0';
+  if(m){
+    const sm=m[0].match(/\ss="([^"]+)"/);
+    if(sm) style=sm[1];
+  }
+  return replaceCompanyWorksheetCell(xml,ref,companyCell(ref,style,value,type));
+}
+
+function summaryCount(rows,severity,status,category=''){
+  return (rows||[]).filter(i=>
+    (!severity || String(i.severity||'')===severity) &&
+    (!status || String(i.status||'')===status) &&
+    (!category || String(i.project||'')===category)
+  ).length;
+}
+</script>
+<!-- v53: issue order / cascade delete performance / restore preview cleanup -->
+</body>
+</html>
